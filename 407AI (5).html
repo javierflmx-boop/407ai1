@@ -1,0 +1,819 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="407AI">
+<title>407AI</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@200;300;400;500;600&display=swap');
+
+  :root {
+    --white: #fff;
+    --bg: #f8f8f6;
+    --mango: #f5a800;
+    --mango-soft: #fff8e6;
+    --mango-border: #fde8a0;
+    --text: #111;
+    --muted: #b0aea6;
+    --border: #ececea;
+    --green: #1f9e68;
+    --green-soft: #edf8f3;
+    --green-border: #a8dfc4;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { height: 100%; overflow: hidden; }
+  body { font-family: 'Outfit', sans-serif; font-weight: 300; background: var(--bg); color: var(--text); display: flex; flex-direction: column; }
+
+  /* SPLASH */
+  #splash {
+    position: fixed; inset: 0; z-index: 999;
+    background: var(--white);
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    transition: opacity 0.6s ease;
+  }
+  #splash.hide { opacity: 0; pointer-events: none; }
+
+  .splash-logo {
+    font-size: 92px; font-weight: 100; letter-spacing: -4px;
+    animation: splashPulse 1.8s ease-in-out infinite;
+  }
+  .splash-logo b { color: var(--mango); font-weight: 200; }
+
+  .splash-dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: var(--mango); margin-top: 30px;
+    animation: splashBounce 1.2s ease-in-out infinite;
+  }
+
+  .splash-sub {
+    font-size: 11px; font-weight: 300; color: var(--muted);
+    letter-spacing: 3px; text-transform: uppercase; margin-top: 14px;
+    animation: splashFade 1.8s ease-in-out infinite;
+  }
+
+  @keyframes splashPulse {
+    0%,100% { transform: scale(1); opacity: 1; }
+    50%      { transform: scale(1.05); opacity: 0.8; }
+  }
+  @keyframes splashBounce {
+    0%,100% { transform: translateY(0); opacity: 0.4; }
+    50%     { transform: translateY(-10px); opacity: 1; }
+  }
+  @keyframes splashFade {
+    0%,100% { opacity: 0.4; }
+    50%     { opacity: 1; }
+  }
+
+  /* HEADER */
+  header { background: var(--white); border-bottom: 1px solid var(--border); padding: 13px 18px; display: flex; align-items: center; flex-shrink: 0; }
+  .logo { font-size: 22px; font-weight: 200; letter-spacing: -0.5px; }
+  .logo b { color: var(--mango); font-weight: 500; }
+  .key-btn { margin-left: auto; background: none; border: 1px solid var(--border); border-radius: 100px; padding: 6px 13px; font-family: 'Outfit', sans-serif; font-size: 12px; font-weight: 300; color: var(--muted); cursor: pointer; transition: all 0.15s; }
+  .key-btn:hover { border-color: var(--mango); color: var(--mango); }
+  .key-btn.set { border-color: var(--green-border); color: var(--green); background: var(--green-soft); }
+
+  /* TABS */
+  .tabs { background: var(--white); border-top: 1px solid var(--border); display: flex; flex-shrink: 0; order: 99; padding-bottom: env(safe-area-inset-bottom, 8px); }
+  .tab { flex: 1; padding: 12px 6px 8px; text-align: center; font-size: 12px; font-weight: 300; color: var(--muted); cursor: pointer; border-top: 2px solid transparent; transition: all 0.15s; }
+  .tab.active { color: var(--text); font-weight: 400; border-top-color: var(--mango); }
+
+  /* SCREENS */
+  .screen { display: none; flex-direction: column; flex: 1; overflow: hidden; }
+  .screen.active { display: flex; }
+
+  /* ── CHAT ── */
+  #chat { flex: 1; overflow-y: auto; padding: 18px 16px; display: flex; flex-direction: column; gap: 14px; }
+  #chat::-webkit-scrollbar { width: 0; }
+
+  .msg { display: flex; flex-direction: column; max-width: 84%; animation: rise 0.2s ease; }
+  @keyframes rise { from { opacity:0; transform:translateY(6px); } to { opacity:1; transform:translateY(0); } }
+  .msg.user { align-self: flex-end; align-items: flex-end; }
+  .msg.ai   { align-self: flex-start; }
+  .lbl { font-size: 9px; font-weight: 400; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); margin-bottom: 4px; padding: 0 4px; }
+  .msg.ai .lbl { color: var(--mango); }
+  .bbl { padding: 12px 16px; font-size: 15px; font-weight: 300; line-height: 1.72; }
+  .msg.user .bbl { background: var(--text); color: #f0efe8; border-radius: 18px 18px 4px 18px; }
+  .msg.ai   .bbl { background: var(--white); color: var(--text); border: 1px solid var(--border); border-radius: 4px 18px 18px 18px; box-shadow: 0 1px 4px rgba(0,0,0,0.04); }
+
+  .quote-box { margin-top: 10px; background: var(--mango-soft); border: 1px solid var(--mango-border); border-radius: 10px; padding: 10px 14px; font-size: 17px; font-weight: 500; color: #7a4f00; }
+
+  .save-quote-btn { margin-top: 10px; width: 100%; background: none; border: 1px solid var(--green-border); border-radius: 10px; padding: 10px 14px; font-family: 'Outfit', sans-serif; font-size: 13px; font-weight: 300; color: var(--green); cursor: pointer; transition: all 0.15s; display: flex; align-items: center; justify-content: center; gap: 6px; }
+  .save-quote-btn:hover { background: var(--green-soft); }
+  .save-quote-btn.saved { background: var(--green-soft); cursor: default; }
+
+  .thinking { align-self: flex-start; display: flex; gap: 5px; align-items: center; padding: 12px 16px; background: var(--white); border: 1px solid var(--border); border-radius: 4px 18px 18px 18px; }
+  .dot { width: 6px; height: 6px; border-radius: 50%; animation: bob 1.2s infinite ease-in-out; }
+  .dot:nth-child(1) { background: var(--mango); }
+  .dot:nth-child(2) { background: #ddd; animation-delay: 0.15s; }
+  .dot:nth-child(3) { background: #ccc; animation-delay: 0.3s; }
+  @keyframes bob { 0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)} }
+
+  .chips { padding: 4px 16px 10px; display: flex; gap: 6px; overflow-x: auto; flex-shrink: 0; scrollbar-width: none; }
+  .chips::-webkit-scrollbar { display: none; }
+  .chip { font-size: 12px; font-weight: 300; padding: 6px 13px; background: var(--white); border: 1px solid var(--border); color: var(--muted); border-radius: 100px; cursor: pointer; transition: all 0.15s; white-space: nowrap; flex-shrink: 0; }
+  .chip:hover { border-color: var(--mango); color: #7a5c00; background: var(--mango-soft); }
+
+  .bar { background: var(--white); border-top: 1px solid var(--border); padding: 10px 16px; display: flex; gap: 10px; align-items: flex-end; flex-shrink: 0; }
+  #inp { flex: 1; background: var(--bg); border: 1px solid var(--border); color: var(--text); padding: 11px 18px; font-family: 'Outfit', sans-serif; font-weight: 300; font-size: 15px; resize: none; min-height: 44px; max-height: 100px; outline: none; border-radius: 100px; transition: border-color 0.2s, background 0.2s; line-height: 1.5; }
+  #inp:focus { border-color: var(--mango); background: var(--white); }
+  #inp::placeholder { color: #ccc; font-style: italic; }
+  #go { background: var(--mango); color: var(--white); border: none; width: 44px; height: 44px; border-radius: 50%; font-size: 18px; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  #go:hover { background: #e09800; transform: scale(1.07); }
+  #go:disabled { background: var(--border); cursor: not-allowed; transform: none; }
+
+  /* ── PHOTO TAB ── */
+  #photoScreen { background: var(--bg); }
+
+  .photo-scroll { flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 14px; }
+  .photo-scroll::-webkit-scrollbar { width: 0; }
+
+  .upload-zone {
+    background: var(--white); border: 2px dashed var(--border);
+    border-radius: 16px; padding: 32px 20px;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    gap: 10px; cursor: pointer; transition: all 0.2s;
+    text-align: center;
+  }
+  .upload-zone:hover, .upload-zone.drag { border-color: var(--mango); background: var(--mango-soft); }
+  .upload-zone.has-img { padding: 0; overflow: hidden; border-style: solid; border-color: var(--mango); }
+
+  .upload-icon { font-size: 36px; }
+  .upload-title { font-size: 15px; font-weight: 400; color: var(--text); }
+  .upload-sub { font-size: 13px; font-weight: 300; color: var(--muted); line-height: 1.5; }
+
+  #previewImg { width: 100%; max-height: 260px; object-fit: cover; display: none; border-radius: 14px; }
+
+  .photo-note-wrap { display: flex; flex-direction: column; gap: 8px; }
+  .photo-note-label { font-size: 11px; font-weight: 300; color: var(--muted); letter-spacing: 1.5px; text-transform: uppercase; }
+  #photoNote { background: var(--white); border: 1px solid var(--border); border-radius: 12px; padding: 12px 16px; font-family: 'Outfit', sans-serif; font-size: 15px; font-weight: 300; color: var(--text); outline: none; resize: none; min-height: 70px; transition: border-color 0.2s; line-height: 1.6; }
+  #photoNote:focus { border-color: var(--mango); }
+  #photoNote::placeholder { color: #ccc; font-style: italic; }
+
+  .analyze-btn { background: var(--mango); color: var(--white); border: none; border-radius: 12px; padding: 14px; font-family: 'Outfit', sans-serif; font-size: 15px; font-weight: 400; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px; }
+  .analyze-btn:hover { background: #e09800; }
+  .analyze-btn:disabled { background: var(--border); cursor: not-allowed; }
+
+  .photo-result { background: var(--white); border: 1px solid var(--border); border-radius: 14px; padding: 16px; font-size: 15px; font-weight: 300; line-height: 1.72; display: none; }
+  .photo-result.show { display: block; animation: rise 0.2s ease; }
+
+  .clear-btn { background: none; border: 1px solid var(--border); border-radius: 10px; padding: 10px; font-family: 'Outfit', sans-serif; font-size: 13px; font-weight: 300; color: var(--muted); cursor: pointer; transition: all 0.15s; }
+  .clear-btn:hover { border-color: #e05500; color: #e05500; }
+
+  /* ── ESTIMATES ── */
+  #estimatesScreen { background: var(--bg); }
+  .est-list { flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 10px; }
+  .est-list::-webkit-scrollbar { width: 0; }
+
+  .empty-state { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px 24px; text-align: center; gap: 10px; }
+  .empty-icon { font-size: 40px; }
+  .empty-title { font-size: 16px; font-weight: 300; color: var(--text); }
+  .empty-sub { font-size: 13px; font-weight: 300; color: var(--muted); line-height: 1.6; }
+
+  .est-card { background: var(--white); border: 1px solid var(--border); border-radius: 14px; overflow: hidden; animation: rise 0.2s ease; }
+  .est-card-top { padding: 14px 16px; display: flex; align-items: flex-start; gap: 12px; }
+  .est-info { flex: 1; min-width: 0; }
+  .est-job { font-size: 14px; font-weight: 400; color: var(--text); margin-bottom: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .est-date { font-size: 11px; font-weight: 300; color: var(--muted); }
+  .est-price { font-size: 18px; font-weight: 500; color: var(--mango); white-space: nowrap; flex-shrink: 0; }
+  .est-actions { border-top: 1px solid var(--border); display: flex; }
+  .est-action { flex: 1; padding: 10px; text-align: center; font-size: 12px; font-weight: 300; color: var(--muted); cursor: pointer; transition: all 0.15s; background: none; border: none; font-family: 'Outfit', sans-serif; border-right: 1px solid var(--border); }
+  .est-action:last-child { border-right: none; }
+  .est-action:hover { background: var(--bg); color: var(--text); }
+  .est-action.share { color: var(--green); }
+  .est-action.share:hover { background: var(--green-soft); }
+  .est-action.del { color: #e05500; }
+  .est-action.del:hover { background: #fff5f2; }
+
+  /* MODALS */
+  .modal-bg { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.35); z-index: 200; align-items: flex-end; justify-content: center; }
+  .modal-bg.open { display: flex; }
+  .modal { background: var(--white); border-radius: 20px 20px 0 0; padding: 24px 22px 36px; width: 100%; max-width: 480px; display: flex; flex-direction: column; gap: 14px; animation: slideUp 0.25s ease; max-height: 85vh; overflow-y: auto; }
+  @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+  .modal-title { font-size: 16px; font-weight: 400; }
+  .modal-sub { font-size: 13px; font-weight: 300; color: var(--muted); line-height: 1.5; }
+  .modal-sub a { color: var(--mango); text-decoration: none; }
+  .modal-row { display: flex; gap: 8px; }
+  .modal-input { flex: 1; background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 11px 14px; font-family: 'Outfit', sans-serif; font-size: 14px; font-weight: 300; color: var(--text); outline: none; transition: border-color 0.2s; }
+  .modal-input:focus { border-color: var(--mango); background: var(--white); }
+  .modal-input::placeholder { color: #ccc; }
+  .modal-eye { background: none; border: 1px solid var(--border); border-radius: 10px; padding: 0 12px; font-size: 16px; cursor: pointer; color: var(--muted); }
+  .modal-save { background: var(--mango); color: var(--white); border: none; border-radius: 10px; padding: 13px; font-family: 'Outfit', sans-serif; font-size: 15px; font-weight: 400; cursor: pointer; }
+  .modal-save:hover { background: #e09800; }
+  .modal-cancel { background: none; border: none; font-family: 'Outfit', sans-serif; font-size: 14px; font-weight: 300; color: var(--muted); cursor: pointer; text-align: center; padding: 4px; }
+  .detail-body { font-size: 14px; font-weight: 300; line-height: 1.8; white-space: pre-wrap; background: var(--bg); border-radius: 10px; padding: 16px; color: var(--text); }
+  .detail-share { background: var(--green); color: var(--white); border: none; border-radius: 10px; padding: 13px; font-family: 'Outfit', sans-serif; font-size: 15px; font-weight: 400; cursor: pointer; }
+  .detail-share:hover { background: #178054; }
+
+  .settings-card { background: var(--white); border: 1px solid var(--border); border-radius: 14px; overflow: hidden; }
+  .settings-row { display: flex; align-items: center; justify-content: space-between; padding: 14px 16px; border-bottom: 1px solid var(--border); gap: 12px; }
+  .settings-info { flex: 1; }
+  .settings-label { font-size: 14px; font-weight: 400; color: var(--text); margin-bottom: 2px; }
+  .settings-sub { font-size: 11px; font-weight: 300; color: var(--muted); }
+  .settings-input { width: 72px; background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 8px 10px; font-family: 'Outfit', sans-serif; font-size: 15px; font-weight: 400; color: var(--text); text-align: center; outline: none; transition: border-color 0.2s; }
+  .settings-input:focus { border-color: var(--mango); background: var(--white); }
+
+  strong { font-weight: 500; }
+  #fileInput { display: none; }
+</style>
+</head>
+<body>
+
+<!-- SPLASH -->
+<div id="splash">
+  <div class="splash-logo"><b>407</b>AI</div>
+  <div class="splash-dot"></div>
+  <div class="splash-sub">by Javier</div>
+</div>
+
+<header>
+  <div class="logo"><b>407</b>AI</div>
+  <button class="key-btn" id="keyBtn" onclick="openKeyModal()">🔑 API Key</button>
+</header>
+
+<!-- CHAT -->
+<div class="screen active" id="chatScreen">
+  <div id="chat">
+    <div class="msg ai">
+      <div class="lbl">407AI</div>
+      <div class="bbl">Hola Javier 👋 — describe the job, get a price. Tap 📷 Photo to quote from a picture.</div>
+    </div>
+  </div>
+  <div class="chips">
+    <button class="chip" onclick="q('Bathroom 8x8 full renovation big tiles')">Bathroom 8×8</button>
+    <button class="chip" onclick="q('Kitchen standard full renovation')">Kitchen reno</button>
+    <button class="chip" onclick="q('Living room 15x20 hardwood floors')">Floors 15×20</button>
+    <button class="chip" onclick="q('Bedroom 12x12 drywall and paint')">Drywall + paint</button>
+    <button class="chip" onclick="q('Tile shower walls 5x8, I bring materials')">Tile shower</button>
+    <button class="chip" onclick="q('Paint interior house 3 bedrooms 2 bathrooms')">House paint</button>
+    <button class="chip" onclick="q('Replace kitchen cabinets 10x12 kitchen')">Cabinets</button>
+    <button class="chip" onclick="q('Basement finishing 20x30')">Basement</button>
+  </div>
+  <div class="bar">
+    <textarea id="inp" placeholder="e.g. Bathroom 8x8 full reno, big tiles…" rows="1"></textarea>
+    <button id="go" onclick="send()">↑</button>
+  </div>
+</div>
+
+<!-- PHOTO -->
+<div class="screen" id="photoScreen">
+  <div class="photo-scroll">
+
+    <div class="upload-zone" id="uploadZone" onclick="document.getElementById('fileInput').click()">
+      <img id="previewImg" />
+      <div id="uploadPlaceholder">
+        <div class="upload-icon">📷</div>
+        <div class="upload-title">Take a photo or upload</div>
+        <div class="upload-sub">Photo of a room, job site, or damage — I'll analyze it and give you a price</div>
+      </div>
+    </div>
+    <input type="file" id="fileInput" accept="image/*" capture="environment" onchange="handlePhoto(event)" />
+
+    <div class="photo-note-wrap">
+      <div class="photo-note-label">Add details (optional)</div>
+      <textarea id="photoNote" placeholder="e.g. Full renovation, client wants big tiles, I bring materials…" rows="3"></textarea>
+    </div>
+
+    <button class="analyze-btn" id="analyzeBtn" onclick="analyzePhoto()" disabled>
+      🔍 Analyze & Price This Job
+    </button>
+
+    <div class="photo-result" id="photoResult"></div>
+
+    <button class="clear-btn" id="clearBtn" onclick="clearPhoto()" style="display:none">✕ Clear photo</button>
+
+  </div>
+</div>
+
+<!-- ESTIMATES -->
+<div class="screen" id="estimatesScreen">
+  <div class="est-list" id="estList"></div>
+</div>
+
+<!-- SETTINGS -->
+<div class="screen" id="settingsScreen">
+  <div class="photo-scroll" style="gap:18px">
+
+    <div style="font-size:11px;font-weight:300;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase">Your Rates</div>
+
+    <div class="settings-card">
+      <div class="settings-row">
+        <div class="settings-info">
+          <div class="settings-label">Your Labor Rate ($/hr)</div>
+          <div class="settings-sub">Your hourly rate as lead contractor</div>
+        </div>
+        <input class="settings-input" id="setLaborRate" type="number" placeholder="65" min="20" max="200" />
+      </div>
+      <div class="settings-row">
+        <div class="settings-info">
+          <div class="settings-label">Helper Labor Rate ($/hr)</div>
+          <div class="settings-sub">Your helper or second worker</div>
+        </div>
+        <input class="settings-input" id="setHelperRate" type="number" placeholder="45" min="20" max="150" />
+      </div>
+      <div class="settings-row">
+        <div class="settings-info">
+          <div class="settings-label">Profit Markup (%)</div>
+          <div class="settings-sub">Added on top of all costs</div>
+        </div>
+        <input class="settings-input" id="setMarkup" type="number" placeholder="20" min="5" max="60" />
+      </div>
+      <div class="settings-row" style="border:none">
+        <div class="settings-info">
+          <div class="settings-label">Your City / Market</div>
+          <div class="settings-sub">Affects material price estimates</div>
+        </div>
+        <input class="settings-input" id="setCity" type="text" placeholder="Orlando" style="width:100px;text-align:center" />
+      </div>
+    </div>
+
+    <button class="modal-save" onclick="saveSettings()" style="border-radius:12px;padding:14px">Save Settings →</button>
+    <div id="settingsSaved" style="text-align:center;font-size:13px;color:var(--green);display:none">✓ Saved! New quotes will use these rates.</div>
+
+  </div>
+</div>
+
+<!-- BOTTOM TABS -->
+<div class="tabs">
+  <div class="tab active" id="tab-chat" onclick="switchTab('chat')">💬 Quote</div>
+  <div class="tab" id="tab-photo" onclick="switchTab('photo')">📷 Photo</div>
+  <div class="tab" id="tab-estimates" onclick="switchTab('estimates')">📋 Estimates</div>
+  <div class="tab" id="tab-settings" onclick="switchTab('settings')">⚙️ Settings</div>
+</div>
+
+<!-- KEY MODAL -->
+<div class="modal-bg" id="keyModal" onclick="closeKeyModal(event)">
+  <div class="modal">
+    <div class="modal-title">🔑 API Key</div>
+    <div class="modal-sub">Get one free at <a href="https://platform.anthropic.com" target="_blank">platform.anthropic.com</a> → API Keys → Create Key.</div>
+    <div class="modal-row">
+      <input class="modal-input" id="keyInp" type="password" placeholder="sk-ant-api03-…" />
+      <button class="modal-eye" onclick="toggleKey()">👁</button>
+    </div>
+    <button class="modal-save" onclick="saveKey()">Save →</button>
+    <button class="modal-cancel" onclick="closeKeyModal()">Cancel</button>
+  </div>
+</div>
+
+<!-- DETAIL MODAL -->
+<div class="modal-bg" id="detailModal" onclick="closeDetail(event)">
+  <div class="modal">
+    <div class="modal-title" id="detailTitle"></div>
+    <div class="modal-sub" id="detailDate"></div>
+    <div class="detail-body" id="detailBody"></div>
+    <button class="detail-share" onclick="shareCurrentDetail()">📤 Share as Estimate</button>
+    <button class="modal-cancel" onclick="closeDetail()">Close</button>
+  </div>
+</div>
+
+<script>
+const SYSTEM = `You are 407AI — Javier's construction quoting assistant for 407 Renovations in Orlando, FL.
+
+ORLANDO MARKET PRICES:
+Labor: $65/hr Javier, $45/hr wife (always 2 workers unless told otherwise)
+Kitchen full renovation: $12,000–18,000 standard | $20,000–30,000 high end
+Bathroom small (<60sqft): $6,000–9,000 | Bathroom large: $10,000–15,000
+Tile installation: $10–15/sqft | Flooring hardwood: $8–12/sqft | LVP: $5–8/sqft
+Drywall: $4–6/sqft | Painting interior: $2–4/sqft
+Cabinets: $200–400 per linear foot installed
+Basement finishing: $25–50/sqft
+Always add: transport $50–80, disposal $80–150, 20% profit margin
+Add 10% labor buffer for surprises
+
+RULES:
+- Quote instantly — no questions, make smart assumptions
+- "I bring materials" = labor only, no material cost
+- Never let Javier lose money
+- Scale prices based on size and complexity
+
+RESPONSE FORMAT:
+[Job title — 4 words max]
+---
+[One line: job understood]
+
+LABOR: $X
+MATERIALS: $X
+OTHER: $X
+———
+SUBTOTAL: $X
+PROFIT (20%): $X
+QUOTE: $X – $X
+
+[One line: what could change this price]`;
+
+const PHOTO_SYSTEM = `You are 407AI — Javier's construction quoting assistant for 407 Renovations in Orlando, FL.
+
+Javier will send you a photo of a room, space, or job site. Analyze what you see and give him a renovation quote.
+
+ORLANDO MARKET PRICES:
+Labor: $65/hr Javier, $45/hr wife (2 workers)
+Kitchen full renovation: $12,000–18,000 | Bathroom small: $6,000–9,000 | large: $10,000–15,000
+Tile: $10–15/sqft | Flooring: $6–12/sqft | Drywall: $4–6/sqft | Painting: $2–4/sqft
+Always add: transport $50–80, disposal $80–150, 20% profit margin
+
+FROM THE PHOTO:
+1. Identify what room/space you see
+2. Estimate the size based on visual cues
+3. List what work appears to be needed
+4. Give a complete quote
+
+RESPONSE FORMAT:
+[Job title — 4 words max]
+---
+What I see: [brief description of the room and condition]
+Estimated scope: [what work needs to be done]
+
+LABOR: $X
+MATERIALS: $X
+OTHER: $X
+———
+SUBTOTAL: $X
+PROFIT (20%): $X
+QUOTE: $X – $X
+
+[One line: what could change this — e.g. exact measurements, hidden damage]`;
+
+let history = [], keyVis = false, currentDetail = null, currentPhotoB64 = null;
+
+function getKey() { return localStorage.getItem('407ai_key') || ''; }
+function saveKey() {
+  const v = document.getElementById('keyInp').value.trim();
+  if (!v.startsWith('sk-ant-')) { alert('Please enter a valid key (starts with sk-ant-)'); return; }
+  localStorage.setItem('407ai_key', v);
+  document.getElementById('keyBtn').textContent = '🔑 Key ✓';
+  document.getElementById('keyBtn').classList.add('set');
+  closeKeyModal();
+}
+function openKeyModal() { document.getElementById('keyModal').classList.add('open'); if (getKey()) document.getElementById('keyInp').value = getKey(); }
+function closeKeyModal(e) { if (!e || e.target === document.getElementById('keyModal')) document.getElementById('keyModal').classList.remove('open'); }
+function toggleKey() { const el = document.getElementById('keyInp'); keyVis = !keyVis; el.type = keyVis ? 'text' : 'password'; }
+
+function switchTab(t) {
+  ['chat','photo','estimates','settings'].forEach(s => {
+    document.getElementById(s+'Screen').classList.toggle('active', s === t);
+    document.getElementById('tab-'+s).classList.toggle('active', s === t);
+  });
+  if (t === 'estimates') renderEstimates();
+  if (t === 'settings') loadSettingsUI();
+}
+
+function getSettings() {
+  try { return JSON.parse(localStorage.getItem('407ai_settings') || '{}'); } catch { return {}; }
+}
+function loadSettingsUI() {
+  const s = getSettings();
+  document.getElementById('setLaborRate').value = s.laborRate || '';
+  document.getElementById('setHelperRate').value = s.helperRate || '';
+  document.getElementById('setMarkup').value = s.markup || '';
+  document.getElementById('setCity').value = s.city || '';
+}
+function saveSettings() {
+  const s = {
+    laborRate: document.getElementById('setLaborRate').value || '65',
+    helperRate: document.getElementById('setHelperRate').value || '45',
+    markup: document.getElementById('setMarkup').value || '20',
+    city: document.getElementById('setCity').value || 'Orlando'
+  };
+  localStorage.setItem('407ai_settings', JSON.stringify(s));
+  const el = document.getElementById('settingsSaved');
+  el.style.display = 'block';
+  setTimeout(() => el.style.display = 'none', 3000);
+}
+
+function buildSystem() {
+  const s = getSettings();
+  const labor = s.laborRate || '65';
+  const helper = s.helperRate || '45';
+  const markup = s.markup || '20';
+  const city = s.city || 'Orlando';
+  return `You are 407AI — a construction quoting assistant for ${city}.
+
+MARKET PRICES (${city}):
+Labor: $${labor}/hr lead contractor, $${helper}/hr helper (always 2 workers unless told otherwise)
+Kitchen full renovation: $12,000–18,000 standard | $20,000–30,000 high end
+Bathroom small (<60sqft): $6,000–9,000 | Bathroom large: $10,000–15,000
+Tile installation: $10–15/sqft | Flooring hardwood: $8–12/sqft | LVP: $5–8/sqft
+Drywall: $4–6/sqft | Painting interior: $2–4/sqft
+Cabinets: $200–400 per linear foot installed
+Basement finishing: $25–50/sqft
+Always add: transport $50–80, disposal $80–150, ${markup}% profit margin
+Add 10% labor buffer for surprises
+
+RULES:
+- Quote instantly — no questions, make smart assumptions
+- "I bring materials" = labor only, no material cost
+- Never let the contractor lose money
+- Scale prices based on size and complexity
+
+RESPONSE FORMAT:
+[Job title — 4 words max]
+---
+[One line: job understood]
+
+LABOR: $X
+MATERIALS: $X
+OTHER: $X
+———
+SUBTOTAL: $X
+PROFIT (${markup}%): $X
+QUOTE: $X – $X
+
+[One line: what could change this price]`;
+}
+
+function buildPhotoSystem() {
+  const s = getSettings();
+  const labor = s.laborRate || '65';
+  const helper = s.helperRate || '45';
+  const markup = s.markup || '20';
+  const city = s.city || 'Orlando';
+  return `You are 407AI — a construction quoting assistant for ${city}.
+
+Analyze the photo and give a renovation quote.
+
+MARKET PRICES (${city}):
+Labor: $${labor}/hr lead, $${helper}/hr helper (2 workers)
+Kitchen full renovation: $12,000–18,000 | Bathroom small: $6,000–9,000 | large: $10,000–15,000
+Tile: $10–15/sqft | Flooring: $6–12/sqft | Drywall: $4–6/sqft | Painting: $2–4/sqft
+Always add: transport $50–80, disposal $80–150, ${markup}% profit margin
+
+FROM THE PHOTO:
+1. Identify what room/space you see
+2. Estimate the size based on visual cues
+3. List what work appears to be needed
+4. Give a complete quote
+
+RESPONSE FORMAT:
+[Job title — 4 words max]
+---
+What I see: [brief description]
+Estimated scope: [what work needed]
+
+LABOR: $X
+MATERIALS: $X
+OTHER: $X
+———
+SUBTOTAL: $X
+PROFIT (${markup}%): $X
+QUOTE: $X – $X
+
+[One line: what could change this price]`;
+}
+
+// ── PHOTO ──
+function handlePhoto(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    const img = new Image();
+    img.onload = () => {
+      // Compress: max 1024px wide, quality 0.7
+      const canvas = document.createElement('canvas');
+      const maxW = 1024;
+      const scale = img.width > maxW ? maxW / img.width : 1;
+      canvas.width = img.width * scale;
+      canvas.height = img.height * scale;
+      canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
+      const compressed = canvas.toDataURL('image/jpeg', 0.7);
+      currentPhotoB64 = compressed.split(',')[1];
+      const prev = document.getElementById('previewImg');
+      prev.src = compressed; prev.style.display = 'block';
+      document.getElementById('uploadPlaceholder').style.display = 'none';
+      document.getElementById('uploadZone').classList.add('has-img');
+      document.getElementById('analyzeBtn').disabled = false;
+      document.getElementById('clearBtn').style.display = 'block';
+      document.getElementById('photoResult').classList.remove('show');
+    };
+    img.src = ev.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
+function clearPhoto() {
+  currentPhotoB64 = null;
+  document.getElementById('previewImg').style.display = 'none';
+  document.getElementById('previewImg').src = '';
+  document.getElementById('uploadPlaceholder').style.display = 'flex';
+  document.getElementById('uploadZone').classList.remove('has-img');
+  document.getElementById('analyzeBtn').disabled = true;
+  document.getElementById('clearBtn').style.display = 'none';
+  document.getElementById('photoResult').classList.remove('show');
+  document.getElementById('fileInput').value = '';
+}
+
+async function analyzePhoto() {
+  const key = getKey();
+  if (!key) { openKeyModal(); return; }
+  if (!currentPhotoB64) return;
+
+  const note = document.getElementById('photoNote').value.trim();
+  const analyzeBtn = document.getElementById('analyzeBtn');
+  const resultEl = document.getElementById('photoResult');
+
+  analyzeBtn.disabled = true;
+  analyzeBtn.innerHTML = '⏳ Analyzing…';
+  resultEl.classList.remove('show');
+
+  const userContent = [
+    { type: 'image', source: { type: 'base64', media_type: 'image/jpeg', data: currentPhotoB64 } },
+    { type: 'text', text: note ? `Photo of the job. Additional info: ${note}` : 'Please analyze this photo and give me a renovation quote.' }
+  ];
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': key,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true'
+      },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 700,
+        system: buildPhotoSystem(),
+        messages: [{ role: 'user', content: userContent }]
+      })
+    });
+    const rawText = await res.text();
+    let data;
+    try { data = JSON.parse(rawText); } catch { throw new Error('Could not read response. Try again.'); }
+    if (!res.ok) throw new Error(data?.error?.message || 'API error ' + res.status);
+    const reply = data?.content?.[0]?.text || 'Could not analyze — try again.';
+    const { job, price } = parseQuote(reply);
+    const cleanText = reply.replace(/^.*\n---\n/, '').trim();
+
+    resultEl.innerHTML = fmtPhoto(reply);
+
+    // Add save button
+    const saveBtn = document.createElement('button');
+    saveBtn.className = 'save-quote-btn';
+    saveBtn.style.marginTop = '14px';
+    saveBtn.innerHTML = '💾 Save to Estimates';
+    saveBtn.onclick = function() {
+      addEstimate(job || 'Photo Quote', price, cleanText);
+      this.innerHTML = '✓ Saved to Estimates';
+      this.classList.add('saved');
+      this.onclick = null;
+    };
+    resultEl.appendChild(saveBtn);
+    resultEl.classList.add('show');
+
+  } catch(e) {
+    resultEl.innerHTML = '<span style="color:#e05500">Error: ' + (e.message || 'Check your API key.') + '</span>';
+    resultEl.classList.add('show');
+  }
+
+  analyzeBtn.disabled = false;
+  analyzeBtn.innerHTML = '🔍 Analyze & Price This Job';
+}
+
+function fmtPhoto(t) {
+  t = t.replace(/^.*\n---\n/, '');
+  t = t.replace(/(QUOTE:\s*\$[^\n<]+)/g, '<div class="quote-box">🔨 $1</div>');
+  t = t.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+  t = t.replace(/———+/g, '<hr style="border:none;border-top:1px solid #ececea;margin:5px 0">');
+  t = t.replace(/\n/g, '<br>');
+  return t;
+}
+
+// ── ESTIMATES ──
+function getEstimates() { try { return JSON.parse(localStorage.getItem('407ai_est') || '[]'); } catch { return []; } }
+function saveEstimates(arr) { localStorage.setItem('407ai_est', JSON.stringify(arr)); }
+
+function addEstimate(job, price, fullText) {
+  const arr = getEstimates();
+  arr.unshift({ id: Date.now(), job, price, fullText, date: new Date().toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}) });
+  saveEstimates(arr);
+}
+
+function deleteEstimate(id) { saveEstimates(getEstimates().filter(e=>e.id!==id)); renderEstimates(); }
+
+function renderEstimates() {
+  const arr = getEstimates();
+  const el = document.getElementById('estList');
+  el.innerHTML = '';
+  if (!arr.length) {
+    el.innerHTML = `<div class="empty-state"><div class="empty-icon">📋</div><div class="empty-title">No estimates yet</div><div class="empty-sub">Quote a job in Chat or Photo tab, then tap "Save to Estimates". Share directly with your client from here.</div></div>`;
+    return;
+  }
+  arr.forEach(e => {
+    const c = document.createElement('div'); c.className = 'est-card';
+    c.innerHTML = `<div class="est-card-top"><div class="est-info"><div class="est-job">${e.job}</div><div class="est-date">${e.date}</div></div><div class="est-price">${e.price}</div></div><div class="est-actions"><button class="est-action" onclick="openDetail(${e.id})">👁 View</button><button class="est-action share" onclick="shareEst(${e.id})">📤 Share</button><button class="est-action del" onclick="deleteEstimate(${e.id})">🗑 Delete</button></div>`;
+    el.appendChild(c);
+  });
+}
+
+function openDetail(id) {
+  const e = getEstimates().find(x=>x.id===id);
+  if (!e) return; currentDetail = e;
+  document.getElementById('detailTitle').textContent = e.job;
+  document.getElementById('detailDate').textContent = e.date;
+  document.getElementById('detailBody').textContent = e.fullText;
+  document.getElementById('detailModal').classList.add('open');
+}
+function closeDetail(ev) { if (!ev||ev.target===document.getElementById('detailModal')) document.getElementById('detailModal').classList.remove('open'); }
+function shareCurrentDetail() { if (currentDetail) shareEst(currentDetail.id); closeDetail(); }
+
+function shareEst(id) {
+  const e = getEstimates().find(x=>x.id===id);
+  if (!e) return;
+  const text = `📋 ESTIMATE — 407 Renovations\n\n${e.job}\n${e.date}\n\n${e.fullText}\n\n— Javier\n407 Renovations\nOrlando, FL`;
+  if (navigator.share) { navigator.share({title:'407 Renovations Estimate', text}); }
+  else { navigator.clipboard.writeText(text).then(()=>alert('Copied! Paste it in a text or email.')); }
+}
+
+// ── CHAT ──
+const chatEl = document.getElementById('chat');
+const inp = document.getElementById('inp');
+const go  = document.getElementById('go');
+
+inp.addEventListener('keydown', e => { if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();send();} });
+inp.addEventListener('input', () => { inp.style.height='auto'; inp.style.height=Math.min(inp.scrollHeight,100)+'px'; });
+function q(t) { inp.value=t; send(); }
+
+function parseQuote(text) {
+  const lines = text.split('\n');
+  const job = lines[0].replace(/---/g,'').trim() || 'Job Estimate';
+  const qMatch = text.match(/QUOTE:\s*(\$[\d,\s–\-]+)/);
+  return { job, price: qMatch ? qMatch[1].trim() : '' };
+}
+
+function fmt(text) {
+  text = text.replace(/^.*\n---\n/, '');
+  text = text.replace(/(QUOTE:\s*\$[^\n<]+)/g, '<div class="quote-box">🔨 $1</div>');
+  text = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+  text = text.replace(/———+/g, '<hr style="border:none;border-top:1px solid #ececea;margin:5px 0">');
+  text = text.replace(/\n/g, '<br>');
+  return text;
+}
+
+function addMsg(role, text, rawText) {
+  const m = document.createElement('div'); m.className=`msg ${role}`;
+  const l = document.createElement('div'); l.className='lbl'; l.textContent=role==='user'?'Javier':'407AI';
+  const b = document.createElement('div'); b.className='bbl'; b.innerHTML=fmt(text);
+  if (role==='ai' && rawText && rawText.includes('QUOTE:')) {
+    const {job,price} = parseQuote(rawText);
+    const clean = rawText.replace(/^.*\n---\n/,'').trim();
+    const sb = document.createElement('button'); sb.className='save-quote-btn'; sb.innerHTML='💾 Save to Estimates';
+    sb.onclick = function() { addEstimate(job,price,clean); this.innerHTML='✓ Saved'; this.classList.add('saved'); this.onclick=null; };
+    b.appendChild(sb);
+  }
+  m.appendChild(l); m.appendChild(b); chatEl.appendChild(m); chatEl.scrollTop=chatEl.scrollHeight;
+}
+
+function showDots() { const el=document.createElement('div'); el.className='thinking'; el.id='dots'; el.innerHTML='<div class="dot"></div><div class="dot"></div><div class="dot"></div>'; chatEl.appendChild(el); chatEl.scrollTop=chatEl.scrollHeight; }
+function hideDots() { const el=document.getElementById('dots'); if(el) el.remove(); }
+
+async function send() {
+  const text=inp.value.trim(); if(!text||go.disabled) return;
+  const key=getKey(); if(!key){openKeyModal();return;}
+  inp.value=''; inp.style.height='auto'; go.disabled=true;
+  addMsg('user',text); history.push({role:'user',content:text}); showDots();
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': key,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true'
+      },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 600,
+        system: buildSystem(),
+        messages: history
+      })
+    });
+    const text = await res.text();
+    let data;
+    try { data = JSON.parse(text); } catch(pe) { throw new Error('Could not read response. Check your API key and try again.'); }
+    if (!res.ok) throw new Error(data?.error?.message || 'API error ' + res.status);
+    const reply = data?.content?.[0]?.text || 'No response — try again.';
+    hideDots(); addMsg('ai', reply, reply);
+    history.push({ role: 'assistant', content: reply });
+  } catch(e) {
+    hideDots();
+    addMsg('ai', 'Error: ' + (e.message || 'Check your API key and internet connection.'));
+  }
+  go.disabled = false; inp.focus();
+}
+
+if(getKey()){document.getElementById('keyBtn').textContent='🔑 Key ✓';document.getElementById('keyBtn').classList.add('set');}
+
+// Splash — hide after 2 seconds
+setTimeout(() => {
+  const s = document.getElementById('splash');
+  s.classList.add('hide');
+  setTimeout(() => s.remove(), 600);
+}, 2000);
+</script>
+</body>
+</html>
