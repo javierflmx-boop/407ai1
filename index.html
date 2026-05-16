@@ -303,14 +303,28 @@ header{background:var(--white);border-bottom:1px solid var(--border);padding:16p
         <input class="settings-input" id="setHelperRate" type="number" placeholder="45" />
       </div>
       <div class="settings-row">
-        <div><div class="s-lbl">Profit Markup</div><div class="s-sub">Added on top of all costs (%)</div></div>
+        <div><div class="s-lbl">Profit Markup</div><div class="s-sub">% added on top of all costs. Increase if your market is more expensive than Orlando.</div></div>
         <input class="settings-input" id="setMarkup" type="number" placeholder="20" />
       </div>
       <div class="settings-row">
-        <div><div class="s-lbl">Your City</div><div class="s-sub">Affects material prices</div></div>
+        <div><div class="s-lbl">Your City</div><div class="s-sub">Helps adjust material prices for major cities.</div></div>
         <input class="settings-input" id="setCity" type="text" placeholder="Orlando" style="width:100px;font-size:13px;" />
       </div>
     </div>
+
+    <div style="background:var(--mango-soft);border:1px solid var(--mango-border);border-radius:16px;padding:16px 18px;">
+      <div style="font-size:10px;font-weight:700;letter-spacing:1.5px;color:var(--mango-dark);margin-bottom:8px;text-transform:uppercase">💡 Set Markup by City</div>
+      <div style="font-size:13px;font-weight:300;color:var(--text2);line-height:1.8">
+        Orlando → <strong>20%</strong><br>
+        Tampa / St. Pete → <strong>22–25%</strong><br>
+        Miami / Fort Lauderdale → <strong>30–35%</strong><br>
+        Atlanta / Nashville → <strong>25–28%</strong><br>
+        Chicago / Dallas → <strong>30–35%</strong><br>
+        New York / Boston → <strong>45–50%</strong><br>
+        Los Angeles / SF → <strong>40–45%</strong>
+      </div>
+    </div>
+
     <button class="primary-btn" onclick="saveSettings()">Save Settings</button>
     <div id="settingsSaved" style="text-align:center;font-size:12px;font-weight:700;letter-spacing:1px;color:var(--green);display:none">✓ SAVED</div>
   </div>
@@ -405,74 +419,107 @@ function saveSettings(){
 
 function buildSystem(){
   const s=getSettings();
-  const labor=s.laborRate||'65',helper=s.helperRate||'45',markup=s.markup||'20',city=s.city||'Orlando';
-  return `You are 407AI — construction quoting assistant for ${city}. You are a real contractor with 15 years experience. Your quotes must reflect REAL market prices that clients will actually pay.
+  const laborRate=parseFloat(s.laborRate)||65;
+  const helperRate=parseFloat(s.helperRate)||45;
+  const markup=parseFloat(s.markup)||20;
+  const city=s.city||'Orlando';
 
-LABOR RATES: Lead $${labor}/hr | Helper $${helper}/hr
-WORKER RULES:
-- Small jobs (1 room paint, small repair, single item): 1 worker only
-- Medium jobs (full room reno, multiple rooms): 2 workers
-- Large jobs (full kitchen, full bathroom, whole house): 2 workers
+  // City material cost multipliers
+  const cityMult={'new york':1.8,'nyc':1.8,'los angeles':1.6,'la':1.6,'san francisco':1.7,'sf':1.7,'miami':1.3,'fort lauderdale':1.2,'boca raton':1.3,'chicago':1.4,'boston':1.5,'washington':1.4,'dc':1.4,'seattle':1.5,'denver':1.3,'austin':1.2,'dallas':1.15,'houston':1.1,'phoenix':1.1,'las vegas':1.2,'tampa':1.05,'jacksonville':0.95,'orlando':1.0,'kissimmee':0.95,'atlanta':1.1,'charlotte':1.05,'nashville':1.1};
+  const m=cityMult[city.toLowerCase().trim()]||1.0;
 
-REALISTIC TIME ESTIMATES:
-- Paint 1 room walls only (12x12): 3-4 hrs | 1 worker = ~$195-260 labor
-- Paint 1 room full (walls+ceiling+trim): 5-6 hrs | 1 worker = ~$325-390 labor
-- Paint whole house interior (3bed/2bath): 3-4 days | 2 workers
-- Tile 1 bathroom floor (50sqft): 6-8 hrs | 1 worker
-- Tile shower walls (40sqft): 1-2 days | 1-2 workers
-- Drywall repair small: 2-4 hrs | 1 worker
-- Full kitchen renovation: 2-3 weeks | 2 workers
-- Full bathroom renovation: 1-2 weeks | 2 workers
+  // Pre-calculate real numbers
+  const twoWorkers=laborRate+helperRate;
+  const oneWorker=laborRate;
 
-MATERIAL PRICES (${city}):
-- Paint per room: $40-80 (walls only) | $60-120 (full room)
-- Tile: $2-8/sqft materials
-- Hardwood flooring: $4-8/sqft materials
-- LVP flooring: $2-4/sqft materials
-- Drywall: $15-25 per sheet
-- Kitchen cabinets: $150-300/linear ft materials
-- Disposal: $0 small jobs | $80-150 large jobs
-- Transport: $30-50 small | $50-80 large
+  // Paint calculations
+  const paintRoomWallsLabor=Math.round(oneWorker*3.5); // 3.5hrs 1 worker
+  const paintRoomWallsMat=Math.round(60*m); // paint + primer
+  const paintRoomWallsTotal=Math.round((paintRoomWallsLabor+paintRoomWallsMat)*(1+markup/100));
 
-COMPLETE JOB PRICES (use these as reference):
-- Paint 1 room walls only: $200-400 total
-- Paint 1 room full: $350-550 total
-- Paint whole house 3bed/2bath: $3,500-6,000 total
-- Bathroom small full reno: $6,000-9,000 total
-- Bathroom large full reno: $10,000-15,000 total
-- Kitchen standard reno: $12,000-18,000 total
-- Tile floor per sqft installed: $8-15/sqft total
-- LVP floors per sqft installed: $4-8/sqft total
-- Drywall repair small: $150-400 total
+  const paintRoomFullLabor=Math.round(oneWorker*5.5); // 5.5hrs 1 worker
+  const paintRoomFullMat=Math.round(90*m);
+  const paintRoomFullTotal=Math.round((paintRoomFullLabor+paintRoomFullMat)*(1+markup/100));
 
-RULES:
-- ALWAYS check if job is small before assigning 2 workers
-- "I bring materials" = labor only, no material cost
-- Never lose money but never overcharge small jobs
-- ${markup}% profit on top of all costs
-- No disposal fee for small paint/repair jobs
-- Be realistic — a 12x12 room repaint is $200-350, NOT $800+
+  const paintHouseLabor=Math.round(twoWorkers*28); // 3.5 days 2 workers
+  const paintHouseMat=Math.round(600*m);
+  const paintHouseTotal=Math.round((paintHouseLabor+paintHouseMat+100)*(1+markup/100));
 
-RESPOND ONLY in this exact format:
+  // Bathroom
+  const bathSmallLabor=Math.round(twoWorkers*60); // ~7.5 days
+  const bathSmallMat=Math.round(3500*m);
+  const bathSmallTotal=Math.round((bathSmallLabor+bathSmallMat+250)*(1+markup/100));
+
+  const bathLargeLabor=Math.round(twoWorkers*90);
+  const bathLargeMat=Math.round(5500*m);
+  const bathLargeTotal=Math.round((bathLargeLabor+bathLargeMat+350)*(1+markup/100));
+
+  // Kitchen
+  const kitchenLabor=Math.round(twoWorkers*160); // ~3 weeks
+  const kitchenMat=Math.round(8000*m);
+  const kitchenTotal=Math.round((kitchenLabor+kitchenMat+500)*(1+markup/100));
+
+  // Per sqft installed
+  const tilePerSqft=Math.round((laborRate*0.15+4*m)*(1+markup/100)*10)/10;
+  const lvpPerSqft=Math.round((laborRate*0.08+3*m)*(1+markup/100)*10)/10;
+  const hwPerSqft=Math.round((laborRate*0.12+6*m)*(1+markup/100)*10)/10;
+  const drywallRepair=Math.round((oneWorker*3+80*m)*(1+markup/100));
+
+  return `You are 407AI — construction quoting assistant for ${city}.
+You MUST use ONLY the pre-calculated numbers below. Do NOT use any other prices. These are calculated from the contractor's actual rates.
+
+YOUR RATES: Lead $${laborRate}/hr | Helper $${helperRate}/hr | 2 workers together = $${twoWorkers}/hr | Profit markup: ${markup}%
+CITY: ${city} (material multiplier: ${m}x)
+
+PRE-CALCULATED PRICES — USE THESE EXACT NUMBERS:
+- Paint 1 room walls only (up to 12x12): LABOR $${paintRoomWallsLabor} | MAT $${paintRoomWallsMat} | TOTAL ~$${paintRoomWallsTotal}
+- Paint 1 room full walls+ceiling+trim: LABOR $${paintRoomFullLabor} | MAT $${paintRoomFullMat} | TOTAL ~$${paintRoomFullTotal}
+- Paint whole house 3bed/2bath: LABOR $${paintHouseLabor} | MAT $${paintHouseMat} | TOTAL ~$${paintHouseTotal}
+- Bathroom small full reno (<60sqft): LABOR $${bathSmallLabor} | MAT $${bathSmallMat} | TOTAL ~$${bathSmallTotal}
+- Bathroom large full reno: LABOR $${bathLargeLabor} | MAT $${bathLargeMat} | TOTAL ~$${bathLargeTotal}
+- Kitchen standard full reno: LABOR $${kitchenLabor} | MAT $${kitchenMat} | TOTAL ~$${kitchenTotal}
+- Tile floor per sqft installed: ~$${tilePerSqft}/sqft total
+- LVP floor per sqft installed: ~$${lvpPerSqft}/sqft total
+- Hardwood floor per sqft installed: ~$${hwPerSqft}/sqft total
+- Drywall repair small: ~$${drywallRepair} total
+- Transport: $${Math.round(50*m)} | Disposal large jobs: $${Math.round(120*m)}
+
+SCALING RULES:
+- Scale prices proportionally for different room sizes (e.g. 10x10 room = 70% of 12x12 price)
+- Scale for complexity (basic vs high-end finishes = +20-40%)
+- "I bring materials" = LABOR ONLY, remove all material costs
+- Small jobs = 1 worker | Large jobs = 2 workers
+
+RESPOND ONLY in this exact format, no other text:
 TITLE: [job name max 4 words]
 LABOR: $X
 MATERIALS: $X
 MAT_LIST: [item1 ~$X, item2 ~$X]
 OTHER: $X
-OTHER_LIST: [Gas ~$X, Disposal ~$X]
+OTHER_LIST: [Transport ~$X, Disposal ~$X]
 SUBTOTAL: $X
 PROFIT: $X
 QUOTE: $X – $X
-NOTE: [one sentence what could change this price]`;
+NOTE: [one sentence about what could change this price]`;
 }
 
 function buildPhotoSystem(){
   const s=getSettings();
-  const labor=s.laborRate||'65',helper=s.helperRate||'45',markup=s.markup||'20',city=s.city||'Orlando';
-  return `You are 407AI — construction quoting assistant for ${city}.
-Analyze the photo. Give a renovation quote instantly.
+  const laborRate=parseFloat(s.laborRate)||65;
+  const helperRate=parseFloat(s.helperRate)||45;
+  const markup=parseFloat(s.markup)||20;
+  const city=s.city||'Orlando';
+  const twoWorkers=laborRate+helperRate;
+  const cityMult={'new york':1.8,'nyc':1.8,'los angeles':1.6,'miami':1.3,'chicago':1.4,'boston':1.5,'seattle':1.5,'denver':1.3,'austin':1.2,'dallas':1.15,'houston':1.1,'tampa':1.05,'orlando':1.0,'atlanta':1.1};
+  const m=cityMult[city.toLowerCase().trim()]||1.0;
 
-PRICES: Labor $${labor}/hr + $${helper}/hr | Tile $10-15/sqft | Floors $6-12/sqft | Drywall $4-6/sqft | Paint $2-4/sqft | Transport $50-80 | Disposal $80-150 | ${markup}% profit
+  return `You are 407AI — construction quoting assistant for ${city}.
+Analyze the photo and give a renovation quote using ONLY these rates:
+
+YOUR RATES: Lead $${laborRate}/hr | Helper $${helperRate}/hr | 2 workers = $${twoWorkers}/hr | ${markup}% profit | City material multiplier: ${m}x
+
+CALCULATE: Estimate hours needed × labor rate + materials cost × ${m} + ${markup}% profit = quote
+Always show your math in the breakdown.
 
 RESPOND ONLY in this exact format:
 TITLE: [job name max 4 words]
@@ -639,7 +686,8 @@ function renderEstimates(){
   if(!arr.length){el.innerHTML=`<div class="empty-state"><div class="empty-icon">📋</div><div class="empty-title">No estimates yet</div><div class="empty-sub">Quote a job and tap Save — share directly with clients from here.</div></div>`;return;}
   arr.forEach(e=>{
     const c=document.createElement('div');c.className='est-card';
-    c.innerHTML=`<div class="est-card-stripe"></div><div class="est-card-top"><div class="est-info"><div class="est-job">${e.job}</div><div class="est-date">${e.date}</div></div><div class="est-price">${e.price}</div></div><div class="est-actions"><button class="est-action" onclick="openDetail(${e.id})">View</button><button class="est-action share" onclick="shareEst(${e.id})">Share</button><button class="est-action del" onclick="deleteEstimate(${e.id})">Delete</button></div>`;
+    c.style.cursor='pointer';
+    c.innerHTML=`<div class="est-card-stripe"></div><div class="est-card-top" onclick="openDetail(${e.id})"><div class="est-info"><div class="est-job">${e.job}</div><div class="est-date">${e.date}</div></div><div class="est-price">${e.price}</div></div><div class="est-actions"><button class="est-action" onclick="openDetail(${e.id})">View</button><button class="est-action share" onclick="shareEst(${e.id})">Share</button><button class="est-action del" onclick="deleteEstimate(${e.id})">Delete</button></div>`;
     el.appendChild(c);
   });
 }
@@ -647,7 +695,28 @@ function openDetail(id){
   const e=getEstimates().find(x=>x.id===id);if(!e)return;currentDetail=e;
   document.getElementById('detailTitle').textContent=e.job;
   document.getElementById('detailDate').textContent=e.date;
-  document.getElementById('detailBody').textContent=e.fullText;
+  const p=parseStructured(e.fullText);
+  const s=getSettings(),markup=s.markup||'20';
+  if(p.quote){
+    document.getElementById('detailBody').innerHTML=`
+      <div style="background:var(--card-amber);border-radius:16px;padding:20px;margin-bottom:14px;position:relative;overflow:hidden">
+        <div style="position:absolute;right:-20px;top:-20px;width:100px;height:100px;border-radius:50%;background:rgba(255,255,255,0.1)"></div>
+        <div style="font-size:9px;font-weight:700;letter-spacing:2px;color:rgba(255,255,255,0.6);margin-bottom:6px">TOTAL ESTIMATE</div>
+        <div style="font-size:38px;font-weight:900;color:#fff;letter-spacing:-1px;line-height:1">${p.quote}</div>
+        <div style="font-size:11px;font-weight:600;color:rgba(255,255,255,0.75);margin-top:8px;text-transform:uppercase;letter-spacing:1px">${p.title||e.job}</div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:14px">
+        ${p.labor?`<div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border);font-size:14px"><span style="color:var(--text2);font-weight:300">Labor</span><span style="font-weight:700">${p.labor}</span></div>`:''}
+        ${p.materials?`<div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border);font-size:14px"><span style="color:var(--text2);font-weight:300">Materials</span><span style="font-weight:700">${p.materials}</span></div>`:''}
+        ${p.other?`<div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border);font-size:14px"><span style="color:var(--text2);font-weight:300">Other</span><span style="font-weight:700">${p.other}</span></div>`:''}
+        ${p.subtotal?`<div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border);font-size:14px"><span style="color:var(--text2);font-weight:300">Subtotal</span><span style="font-weight:700">${p.subtotal}</span></div>`:''}
+        ${p.profit?`<div style="display:flex;justify-content:space-between;padding:10px 0;font-size:14px"><span style="color:var(--text2);font-weight:300">Profit (${markup}%)</span><span style="font-weight:700;color:var(--mango)">${p.profit}</span></div>`:''}
+      </div>
+      ${p.note?`<div style="background:var(--bg);border-radius:12px;padding:12px 14px;font-size:12px;font-weight:300;color:var(--text2);line-height:1.6">${p.note}</div>`:''}
+    `;
+  } else {
+    document.getElementById('detailBody').innerHTML=`<div style="font-size:14px;font-weight:300;line-height:1.8;white-space:pre-wrap">${e.fullText}</div>`;
+  }
   document.getElementById('detailModal').classList.add('open');
 }
 function closeDetail(ev){if(!ev||ev.target===document.getElementById('detailModal'))document.getElementById('detailModal').classList.remove('open');}
