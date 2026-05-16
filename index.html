@@ -303,25 +303,19 @@ header{background:var(--white);border-bottom:1px solid var(--border);padding:16p
         <input class="settings-input" id="setHelperRate" type="number" placeholder="45" />
       </div>
       <div class="settings-row">
-        <div><div class="s-lbl">Profit Markup</div><div class="s-sub">% added on top of all costs. Increase if your market is more expensive than Orlando.</div></div>
-        <input class="settings-input" id="setMarkup" type="number" placeholder="20" />
-      </div>
-      <div class="settings-row">
         <div><div class="s-lbl">Your City</div><div class="s-sub">Helps adjust material prices for major cities.</div></div>
         <input class="settings-input" id="setCity" type="text" placeholder="Orlando" style="width:100px;font-size:13px;" />
       </div>
     </div>
+    <input type="hidden" id="setMarkup" value="20" />
 
     <div style="background:var(--mango-soft);border:1px solid var(--mango-border);border-radius:16px;padding:16px 18px;">
-      <div style="font-size:10px;font-weight:700;letter-spacing:1.5px;color:var(--mango-dark);margin-bottom:8px;text-transform:uppercase">💡 Set Markup by City</div>
+      <div style="font-size:10px;font-weight:700;letter-spacing:1.5px;color:var(--mango-dark);margin-bottom:8px;text-transform:uppercase">💡 How City Affects Prices</div>
       <div style="font-size:13px;font-weight:300;color:var(--text2);line-height:1.8">
-        Orlando → <strong>20%</strong><br>
-        Tampa / St. Pete → <strong>22–25%</strong><br>
-        Miami / Fort Lauderdale → <strong>30–35%</strong><br>
-        Atlanta / Nashville → <strong>25–28%</strong><br>
-        Chicago / Dallas → <strong>30–35%</strong><br>
-        New York / Boston → <strong>45–50%</strong><br>
-        Los Angeles / SF → <strong>40–45%</strong>
+        Prices adjust automatically based on your city's local market rates.<br><br>
+        Orlando · Tampa · Jacksonville → Standard<br>
+        Miami · Fort Lauderdale → Higher<br>
+        New York · Boston · LA · SF → Much higher
       </div>
     </div>
 
