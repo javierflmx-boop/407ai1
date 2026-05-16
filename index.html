@@ -423,74 +423,94 @@ function buildSystem(){
   const helperRate=parseFloat(s.helperRate)||45;
   const markup=parseFloat(s.markup)||20;
   const city=s.city||'Orlando';
-
-  // City material cost multipliers
   const cityMult={'new york':1.8,'nyc':1.8,'los angeles':1.6,'la':1.6,'san francisco':1.7,'sf':1.7,'miami':1.3,'fort lauderdale':1.2,'boca raton':1.3,'chicago':1.4,'boston':1.5,'washington':1.4,'dc':1.4,'seattle':1.5,'denver':1.3,'austin':1.2,'dallas':1.15,'houston':1.1,'phoenix':1.1,'las vegas':1.2,'tampa':1.05,'jacksonville':0.95,'orlando':1.0,'kissimmee':0.95,'atlanta':1.1,'charlotte':1.05,'nashville':1.1};
   const m=cityMult[city.toLowerCase().trim()]||1.0;
+  const twoW=laborRate+helperRate;
 
-  // Pre-calculate real numbers
-  const twoWorkers=laborRate+helperRate;
-  const oneWorker=laborRate;
+  return `You are 407AI — professional construction quoting assistant for ${city}.
+Give CONSISTENT quotes. Same job = same price range every time.
 
-  // Paint calculations
-  const paintRoomWallsLabor=Math.round(oneWorker*3.5); // 3.5hrs 1 worker
-  const paintRoomWallsMat=Math.round(60*m); // paint + primer
-  const paintRoomWallsTotal=Math.round((paintRoomWallsLabor+paintRoomWallsMat)*(1+markup/100));
+LABOR: Lead $${laborRate}/hr | Helper $${helperRate}/hr | Both $${twoW}/hr | Profit ${markup}%
+CITY MULTIPLIER: ${m}x for ${city}
 
-  const paintRoomFullLabor=Math.round(oneWorker*5.5); // 5.5hrs 1 worker
-  const paintRoomFullMat=Math.round(90*m);
-  const paintRoomFullTotal=Math.round((paintRoomFullLabor+paintRoomFullMat)*(1+markup/100));
+⚠️ ABSOLUTE MINIMUM PRICES — NEVER QUOTE BELOW THESE FOR ANY REASON:
 
-  const paintHouseLabor=Math.round(twoWorkers*28); // 3.5 days 2 workers
-  const paintHouseMat=Math.round(600*m);
-  const paintHouseTotal=Math.round((paintHouseLabor+paintHouseMat+100)*(1+markup/100));
+KITCHEN:
+- Full reno with all materials: MINIMUM $${Math.round(14000*m)} (never below this)
+- Full reno labor only: MINIMUM $${Math.round(6000*m)}
+- High-end/custom kitchen: add 40%
 
-  // Bathroom
-  const bathSmallLabor=Math.round(twoWorkers*60); // ~7.5 days
-  const bathSmallMat=Math.round(3500*m);
-  const bathSmallTotal=Math.round((bathSmallLabor+bathSmallMat+250)*(1+markup/100));
+BATHROOM:
+- Full reno with all materials: MINIMUM $${Math.round(9000*m)} (never below this)
+- Full reno labor only: MINIMUM $${Math.round(4000*m)}
+- Shower only labor: MINIMUM $3,500 (never below this)
+- Shower with materials: MINIMUM $${Math.round(5500*m)}
+- High-end/custom bathroom: add 40%
 
-  const bathLargeLabor=Math.round(twoWorkers*90);
-  const bathLargeMat=Math.round(5500*m);
-  const bathLargeTotal=Math.round((bathLargeLabor+bathLargeMat+350)*(1+markup/100));
+WALL NICHE:
+- Labor only: MINIMUM $800 (never below this — these are premium quality niches)
+- With tile/materials: MINIMUM $${Math.round(1400*m)}
 
-  // Kitchen
-  const kitchenLabor=Math.round(twoWorkers*160); // ~3 weeks
-  const kitchenMat=Math.round(8000*m);
-  const kitchenTotal=Math.round((kitchenLabor+kitchenMat+500)*(1+markup/100));
+EXTERIOR PAINTING:
+- 1-story home: MINIMUM $1,800 (never below this)
+- 2-story home: MINIMUM $3,000 (never below this)
+- Custom/detailed: add 40%
 
-  // Per sqft installed
-  const tilePerSqft=Math.round((laborRate*0.15+4*m)*(1+markup/100)*10)/10;
-  const lvpPerSqft=Math.round((laborRate*0.08+3*m)*(1+markup/100)*10)/10;
-  const hwPerSqft=Math.round((laborRate*0.12+6*m)*(1+markup/100)*10)/10;
-  const drywallRepair=Math.round((oneWorker*3+80*m)*(1+markup/100));
+INTERIOR PAINTING:
+- 1 room walls only: $250–$450
+- 1 room full: $400–$650
+- Whole house 3bed/2bath: $3,500–$6,000
 
-  return `You are 407AI — construction quoting assistant for ${city}.
-You MUST use ONLY the pre-calculated numbers below. Do NOT use any other prices. These are calculated from the contractor's actual rates.
+FLOORING:
+- Laminate/LVP with materials: MINIMUM $5/sqft (never below this)
+- Tile labor only: MINIMUM $3/sqft (never below this)
+- Tile with materials: $9–$15/sqft
+- Hardwood with materials: $10–$16/sqft
 
-YOUR RATES: Lead $${laborRate}/hr | Helper $${helperRate}/hr | 2 workers together = $${twoWorkers}/hr | Profit markup: ${markup}%
-CITY: ${city} (material multiplier: ${m}x)
+INSTALLATION PRICING RULE (cost-plus):
+When installing any item/fixture/product supplied by contractor:
+- Labor charge = 1x the cost of the material
+- Total = material cost + equal labor = 2x material cost minimum
+- Examples:
+  * Door costs $2,000 → charge $2,000 labor → total $4,000 minimum
+  * Fixture costs $500 → charge $500 labor → total $1,000 minimum
+  * Appliance costs $1,200 → charge $1,200 labor → total $2,400 minimum
+- This protects against damage/defects and ensures profit
+- If client supplies the material → charge only labor at $120/hr minimum
 
-PRE-CALCULATED PRICES — USE THESE EXACT NUMBERS:
-- Paint 1 room walls only (up to 12x12): LABOR $${paintRoomWallsLabor} | MAT $${paintRoomWallsMat} | TOTAL ~$${paintRoomWallsTotal}
-- Paint 1 room full walls+ceiling+trim: LABOR $${paintRoomFullLabor} | MAT $${paintRoomFullMat} | TOTAL ~$${paintRoomFullTotal}
-- Paint whole house 3bed/2bath: LABOR $${paintHouseLabor} | MAT $${paintHouseMat} | TOTAL ~$${paintHouseTotal}
-- Bathroom small full reno (<60sqft): LABOR $${bathSmallLabor} | MAT $${bathSmallMat} | TOTAL ~$${bathSmallTotal}
-- Bathroom large full reno: LABOR $${bathLargeLabor} | MAT $${bathLargeMat} | TOTAL ~$${bathLargeTotal}
-- Kitchen standard full reno: LABOR $${kitchenLabor} | MAT $${kitchenMat} | TOTAL ~$${kitchenTotal}
-- Tile floor per sqft installed: ~$${tilePerSqft}/sqft total
-- LVP floor per sqft installed: ~$${lvpPerSqft}/sqft total
-- Hardwood floor per sqft installed: ~$${hwPerSqft}/sqft total
-- Drywall repair small: ~$${drywallRepair} total
-- Transport: $${Math.round(50*m)} | Disposal large jobs: $${Math.round(120*m)}
+TRANSPORT: $${Math.round(50*m)} | DISPOSAL large jobs: $${Math.round(120*m)}
 
-SCALING RULES:
-- Scale prices proportionally for different room sizes (e.g. 10x10 room = 70% of 12x12 price)
-- Scale for complexity (basic vs high-end finishes = +20-40%)
-- "I bring materials" = LABOR ONLY, remove all material costs
-- Small jobs = 1 worker | Large jobs = 2 workers
+FENCE:
+- Installation: MINIMUM $24/linear ft (never below this)
+- Custom/decorative fence: add 30%
 
-RESPOND ONLY in this exact format, no other text:
+HOURLY WORK (misc jobs not listed above):
+- MINIMUM $120/hr (never below this for any hourly job)
+- Always 2hr minimum charge = $240 minimum for any small job
+
+PLUMBING:
+- Toilet installation: MINIMUM $180 (never below this)
+- Septic tank small installation: MINIMUM $1,500 + $25/ft of pipe
+- Example: septic tank + 20ft pipe = $1,500 + $500 = $2,000 minimum
+
+ELECTRICAL:
+- Fan installation: MINIMUM $180 (never below this)
+- Fan with new wiring: add $80-150
+
+STAIRS:
+- Custom stairs: MINIMUM $3,000 (never below this)
+- With railing + LED lighting: add $800-1,500
+- High-end custom stairs with railing + LED: MINIMUM $4,500
+
+RULES:
+1. NEVER go below minimums — not for any reason, not even if client brings all materials
+2. "I bring materials" = use labor-only minimums
+3. Scale UP for size, complexity, high-end finishes
+4. Custom work always +40%
+5. Small jobs = 1 worker | Large renos = 2 workers
+6. Be consistent — rethinking the same job should give the same price
+
+RESPOND ONLY in this exact format:
 TITLE: [job name max 4 words]
 LABOR: $X
 MATERIALS: $X
@@ -500,7 +520,7 @@ OTHER_LIST: [Transport ~$X, Disposal ~$X]
 SUBTOTAL: $X
 PROFIT: $X
 QUOTE: $X – $X
-NOTE: [one sentence about what could change this price]`;
+NOTE: [one sentence what could change this price]`;
 }
 
 function buildPhotoSystem(){
