@@ -695,14 +695,15 @@ function openDetail(id){
   const e=getEstimates().find(x=>x.id===id);if(!e)return;currentDetail=e;
   document.getElementById('detailTitle').textContent=e.job;
   document.getElementById('detailDate').textContent=e.date;
-  const p=parseStructured(e.fullText);
+  const p=parseStructured(e.fullText||'');
   const s=getSettings(),markup=s.markup||'20';
-  if(p.quote){
+  const hasStructured=p.quote||p.labor||p.materials;
+  if(hasStructured){
     document.getElementById('detailBody').innerHTML=`
       <div style="background:var(--card-amber);border-radius:16px;padding:20px;margin-bottom:14px;position:relative;overflow:hidden">
         <div style="position:absolute;right:-20px;top:-20px;width:100px;height:100px;border-radius:50%;background:rgba(255,255,255,0.1)"></div>
         <div style="font-size:9px;font-weight:700;letter-spacing:2px;color:rgba(255,255,255,0.6);margin-bottom:6px">TOTAL ESTIMATE</div>
-        <div style="font-size:38px;font-weight:900;color:#fff;letter-spacing:-1px;line-height:1">${p.quote}</div>
+        <div style="font-size:38px;font-weight:900;color:#fff;letter-spacing:-1px;line-height:1">${p.quote||e.price||'—'}</div>
         <div style="font-size:11px;font-weight:600;color:rgba(255,255,255,0.75);margin-top:8px;text-transform:uppercase;letter-spacing:1px">${p.title||e.job}</div>
       </div>
       <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:14px">
@@ -715,7 +716,15 @@ function openDetail(id){
       ${p.note?`<div style="background:var(--bg);border-radius:12px;padding:12px 14px;font-size:12px;font-weight:300;color:var(--text2);line-height:1.6">${p.note}</div>`:''}
     `;
   } else {
-    document.getElementById('detailBody').innerHTML=`<div style="font-size:14px;font-weight:300;line-height:1.8;white-space:pre-wrap">${e.fullText}</div>`;
+    // Fallback for old format estimates — show everything nicely
+    document.getElementById('detailBody').innerHTML=`
+      <div style="background:var(--card-amber);border-radius:16px;padding:20px;margin-bottom:14px">
+        <div style="font-size:9px;font-weight:700;letter-spacing:2px;color:rgba(255,255,255,0.6);margin-bottom:6px">TOTAL ESTIMATE</div>
+        <div style="font-size:38px;font-weight:900;color:#fff;letter-spacing:-1px;line-height:1">${e.price||'—'}</div>
+        <div style="font-size:11px;font-weight:600;color:rgba(255,255,255,0.75);margin-top:8px;text-transform:uppercase;letter-spacing:1px">${e.job}</div>
+      </div>
+      <div style="background:var(--bg);border-radius:12px;padding:14px 16px;font-size:13px;font-weight:300;color:var(--text2);line-height:1.8;white-space:pre-wrap">${e.fullText||''}</div>
+    `;
   }
   document.getElementById('detailModal').classList.add('open');
 }
