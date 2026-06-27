@@ -303,19 +303,22 @@ header{background:var(--white);border-bottom:1px solid var(--border);padding:16p
         <input class="settings-input" id="setHelperRate" type="number" placeholder="45" />
       </div>
       <div class="settings-row">
-        <div><div class="s-lbl">Your City</div><div class="s-sub">Helps adjust material prices for major cities.</div></div>
-        <input class="settings-input" id="setCity" type="text" placeholder="Orlando" style="width:100px;font-size:13px;" />
+        <div><div class="s-lbl">Price Adjustment</div><div class="s-sub">Increase or decrease estimates for your market (%)</div></div>
+        <input class="settings-input" id="setMarkup" type="number" placeholder="20" />
+      </div>
+      <div class="settings-row">
+        <div><div class="s-lbl">Client Discount</div><div class="s-sub">% shown as discount to client on estimates</div></div>
+        <input class="settings-input" id="setDiscount" type="number" placeholder="5" min="0" max="20" />
       </div>
     </div>
-    <input type="hidden" id="setMarkup" value="20" />
-
+    <input type="hidden" id="setCity" value="Orlando" />
     <div style="background:var(--mango-soft);border:1px solid var(--mango-border);border-radius:16px;padding:16px 18px;">
-      <div style="font-size:10px;font-weight:700;letter-spacing:1.5px;color:var(--mango-dark);margin-bottom:8px;text-transform:uppercase">💡 How City Affects Prices</div>
+      <div style="font-size:10px;font-weight:700;letter-spacing:1.5px;color:var(--mango-dark);margin-bottom:8px;text-transform:uppercase">💡 Price Adjustment Guide</div>
       <div style="font-size:13px;font-weight:300;color:var(--text2);line-height:1.8">
-        Prices adjust automatically based on your city's local market rates.<br><br>
-        Orlando · Tampa · Jacksonville → Standard<br>
-        Miami · Fort Lauderdale → Higher<br>
-        New York · Boston · LA · SF → Much higher
+        Lower cost area → <strong>10–15%</strong><br>
+        Standard market → <strong>20%</strong><br>
+        Higher cost area → <strong>25–30%</strong><br>
+        Premium market → <strong>35–40%</strong>
       </div>
     </div>
 
@@ -402,10 +405,16 @@ function loadSettingsUI(){
   document.getElementById('setLaborRate').value=s.laborRate||'';
   document.getElementById('setHelperRate').value=s.helperRate||'';
   document.getElementById('setMarkup').value=s.markup||'';
-  document.getElementById('setCity').value=s.city||'';
+  document.getElementById('setDiscount').value=s.discount||'';
 }
 function saveSettings(){
-  const s={laborRate:document.getElementById('setLaborRate').value||'65',helperRate:document.getElementById('setHelperRate').value||'45',markup:document.getElementById('setMarkup').value||'20',city:document.getElementById('setCity').value||'Orlando'};
+  const s={
+    laborRate:document.getElementById('setLaborRate').value||'65',
+    helperRate:document.getElementById('setHelperRate').value||'45',
+    markup:document.getElementById('setMarkup').value||'20',
+    city:'Orlando',
+    discount:document.getElementById('setDiscount').value||'0'
+  };
   localStorage.setItem('407ai_settings',JSON.stringify(s));
   const el=document.getElementById('settingsSaved');el.style.display='block';
   setTimeout(()=>el.style.display='none',3000);
@@ -560,10 +569,37 @@ function toggleExpand(id){
 }
 
 function renderQuoteCard(p,rawText){
+  const s=getSettings();
+  const discount=parseFloat(s.discount)||0;
   const esc=rawText.replace(/\\/g,'\\\\').replace(/`/g,'\\`').replace(/\$/g,'\\$');
   const tj=(p.title||'Job Estimate').replace(/'/g,"\\'");
   const pq=(p.quote||'').replace(/'/g,"\\'");
   const uid=Date.now();
+
+  // Calculate discount if set
+  let discountHTML='';
+  if(discount>0 && p.quote){
+    const quoteNum=parseFloat(p.quote.replace(/[^0-9.]/g,''));
+    if(quoteNum>0){
+      const discAmt=Math.round(quoteNum*(discount/100));
+      const finalPrice=Math.round(quoteNum-discAmt);
+      discountHTML=`
+        <div style="background:var(--green-soft);border:1px solid var(--green-border);border-radius:14px;padding:14px 16px;display:flex;flex-direction:column;gap:6px">
+          <div style="display:flex;justify-content:space-between;font-size:13px">
+            <span style="color:var(--text2);font-weight:300">Original price</span>
+            <span style="font-weight:500;text-decoration:line-through;color:var(--text2)">${p.quote}</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;font-size:13px">
+            <span style="color:var(--green);font-weight:600">Discount (${discount}%)</span>
+            <span style="font-weight:600;color:var(--green)">- $${discAmt.toLocaleString()}</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;font-size:18px;border-top:1px solid var(--green-border);padding-top:8px;margin-top:2px">
+            <span style="color:var(--text);font-weight:700">Your Price</span>
+            <span style="font-weight:900;color:var(--green)">$${finalPrice.toLocaleString()}</span>
+          </div>
+        </div>`;
+    }
+  }
   // Format mat list
   const matItems=p.matList?p.matList.replace(/[\[\]]/g,'').split(',').map(i=>`<div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid rgba(0,0,0,0.06);font-size:12px"><span>${i.trim()}</span></div>`).join(''):'';
   const otherItems=p.otherList?p.otherList.replace(/[\[\]]/g,'').split(',').map(i=>`<div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid rgba(255,255,255,0.1);font-size:12px;color:rgba(255,255,255,0.8)"><span>${i.trim()}</span></div>`).join(''):'';
@@ -599,6 +635,7 @@ function renderQuoteCard(p,rawText){
     </div>`:''}
   </div>
   ${p.note?`<div class="qcard-note">${p.note}</div>`:''}
+  ${discountHTML}
   <button class="qc-save" onclick="(function(b){addEstimate('${tj}','${pq}',\`${esc}\`);b.textContent='✓ Saved to Estimates';b.classList.add('saved');b.onclick=null;})(this)">Save to Estimates</button>
 </div>`;
 }
@@ -650,7 +687,7 @@ async function analyzePhoto(){
     const res=await fetch('/api/chat',{
       method:'POST',
       headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:700,system:buildPhotoSystem(),messages:[{role:'user',content:[
+      body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:700,system:buildPhotoSystem(),messages:[{role:'user',content:[
         {type:'image',source:{type:'base64',media_type:'image/jpeg',data:currentPhotoB64}},
         {type:'text',text:note?`Photo of job. Extra info: ${note}`:'Analyze this photo and give me a renovation quote.'}
       ]}]})
@@ -785,7 +822,7 @@ async function send(){
     const res=await fetch('/api/chat',{
       method:'POST',
       headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:600,system:buildSystem(),messages:history})
+      body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:600,system:buildSystem(),messages:history})
     });
     const raw=await res.text();let data;
     try{data=JSON.parse(raw);}catch{throw new Error('Could not read response.');}
