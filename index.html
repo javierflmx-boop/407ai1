@@ -783,7 +783,14 @@ function closeDetail(ev){if(!ev||ev.target===document.getElementById('detailModa
 function shareCurrentDetail(){if(currentDetail)shareEst(currentDetail.id);closeDetail();}
 function shareEst(id){
   const e=getEstimates().find(x=>x.id===id);if(!e)return;
-  const text=`ESTIMATE — 407 Renovations\nOrlando, FL\n\n${e.job}\n${e.date}\n\n${e.fullText}\n\n— Javier\n407 Renovations`;
+  // Client-facing share: total price only — never labor/materials/other/subtotal/profit.
+  const p=parseStructured(e.fullText||'');
+  const total=p.quote||e.price||'';
+  let text=`ESTIMATE — 407 Renovations\nOrlando, FL\n\n${p.title||e.job}\n${e.date}\n`;
+  if(p.scope) text+=`\n${p.scope}\n`;
+  text+=`\nTotal: ${total}\n`;
+  if(p.note) text+=`\n${p.note}\n`;
+  text+=`\n— Javier\n407 Renovations`;
   if(navigator.share){navigator.share({title:'407 Renovations Estimate',text});}
   else{navigator.clipboard.writeText(text).then(()=>alert('Copied! Paste in text or email.'));}
 }
