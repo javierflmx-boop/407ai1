@@ -19,6 +19,9 @@
   --mango: #e8920a;
   --mango-light: #f5a800;
   --mango-glow: rgba(232,146,10,0.12);
+  --mango-soft: #fff8e6;
+  --mango-border: #fde8a0;
+  --mango-dark: #c98a00;
   --text: #1a1814;
   --text2: #6b6560;
   --border: #e2ddd6;
@@ -32,12 +35,10 @@
   --green-border: #b8cdb4;
   --radius: 22px;
 }
-
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
 html,body{height:100%;overflow:hidden;}
 body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);display:flex;flex-direction:column;}
 
-/* SPLASH */
 #splash{position:fixed;inset:0;z-index:999;background:var(--card-dark);display:flex;flex-direction:column;align-items:center;justify-content:center;transition:opacity 0.7s ease;}
 #splash.hide{opacity:0;pointer-events:none;}
 .splash-logo{font-size:100px;font-weight:100;letter-spacing:-6px;color:#fff;}
@@ -46,85 +47,64 @@ body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);disp
 .splash-sub{font-size:10px;font-weight:400;color:rgba(255,255,255,0.3);letter-spacing:4px;text-transform:uppercase;margin-top:16px;}
 @keyframes barGrow{0%,100%{width:20px;opacity:0.3}50%{width:60px;opacity:1}}
 
-/* HEADER */
 header{background:var(--white);border-bottom:1px solid var(--border);padding:16px 20px 14px;display:flex;align-items:center;flex-shrink:0;}
 .logo{font-size:22px;font-weight:200;letter-spacing:-0.5px;color:var(--text);}
 .logo b{color:var(--mango);font-weight:800;}
 .key-btn{margin-left:auto;background:none;border:1.5px solid var(--border);border-radius:100px;padding:7px 16px;font-family:'Outfit',sans-serif;font-size:11px;font-weight:600;letter-spacing:0.5px;color:var(--text2);cursor:pointer;transition:all 0.2s;}
 .key-btn.set{border-color:var(--green-border);color:var(--green);background:var(--green-soft);}
+.tier-badge{font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;padding:5px 12px;border-radius:100px;cursor:pointer;border:1.5px solid var(--border);color:var(--text2);background:none;font-family:'Outfit',sans-serif;}
+.tier-badge.high{border-color:var(--card-rust);color:var(--card-rust);background:rgba(196,68,10,0.08);}
+.tier-badge.builder{border-color:var(--card-tan);color:#7a6a4a;background:rgba(200,185,154,0.2);}
 
-/* BOTTOM TABS — big colored blocks, stacked card style */
 .tabs{display:flex;flex-shrink:0;padding-bottom:env(safe-area-inset-bottom,0px);height:72px;position:relative;}
 .tab{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;cursor:pointer;position:relative;transition:all 0.2s;border-radius:16px 16px 0 0;margin:0 2px;}
 .tab-top-label{font-size:13px;font-weight:900;letter-spacing:-0.5px;color:rgba(0,0,0,0.5);transition:all 0.2s;line-height:1;}
 .tab-label{font-size:8px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:rgba(0,0,0,0.45);transition:all 0.2s;}
-
-/* Each tab its own bold color */
 #tab-chat{background:#8a9e2a;}
 #tab-photo{background:#e8520a;}
 #tab-estimates{background:#3aaedc;}
 #tab-settings{background:#f5b800;}
-
-/* Active tab pops up */
 .tab.active{transform:translateY(-6px);box-shadow:0 -4px 20px rgba(0,0,0,0.15);}
 .tab.active .tab-top-label{color:rgba(0,0,0,0.85);}
 .tab.active .tab-label{color:rgba(0,0,0,0.65);}
 .tab:not(.active){opacity:0.75;}
 
-/* SCREENS */
 .screen{display:none;flex-direction:column;flex:1;overflow:hidden;}
 .screen.active{display:flex;}
 
-/* CHAT */
 #chat{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:14px;}
 #chat::-webkit-scrollbar{width:0;}
 @keyframes rise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
 
-/* User bubble */
 .msg-user{align-self:flex-end;max-width:80%;animation:rise 0.25s ease;}
 .msg-user-lbl{font-size:8px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:var(--text2);margin-bottom:5px;text-align:right;padding-right:6px;}
 .msg-user-bbl{background:var(--card-dark);color:#f5f0e8;padding:14px 20px;border-radius:20px 20px 4px 20px;font-size:15px;font-weight:300;line-height:1.65;}
 
-/* AI quote card — money-app style */
 .msg-ai{align-self:flex-start;width:100%;animation:rise 0.25s ease;}
 .msg-ai-lbl{font-size:8px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:var(--mango);margin-bottom:8px;padding-left:4px;}
-
 .quote-card{display:flex;flex-direction:column;gap:10px;}
-
-/* BIG total card */
 .qcard-total{background:var(--card-amber);border-radius:var(--radius);padding:26px 22px 22px;position:relative;overflow:hidden;box-shadow:0 6px 24px rgba(232,146,10,0.3);}
 .qcard-total::before{content:'';position:absolute;right:-40px;top:-40px;width:160px;height:160px;border-radius:50%;background:rgba(255,255,255,0.1);}
 .qcard-total::after{content:'';position:absolute;right:30px;bottom:-50px;width:120px;height:120px;border-radius:50%;background:rgba(0,0,0,0.07);}
 .qcard-eyebrow{font-size:9px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:rgba(255,255,255,0.6);margin-bottom:8px;position:relative;z-index:1;}
 .qcard-price{font-size:52px;font-weight:900;color:#fff;letter-spacing:-3px;line-height:0.95;position:relative;z-index:1;}
 .qcard-job{font-size:12px;font-weight:600;color:rgba(255,255,255,0.7);margin-top:12px;text-transform:uppercase;letter-spacing:1.5px;position:relative;z-index:1;}
-
-/* 2-column grid for sub-cards */
 .qcard-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
-
 .qcard-mini{border-radius:18px;padding:16px 18px;position:relative;overflow:hidden;box-shadow:0 4px 16px rgba(0,0,0,0.08);}
 .qcard-mini::after{content:'';position:absolute;right:-20px;bottom:-20px;width:80px;height:80px;border-radius:50%;background:rgba(255,255,255,0.08);}
 .qcard-mini-label{font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;margin-bottom:8px;opacity:0.7;}
 .qcard-mini-val{font-size:26px;font-weight:900;letter-spacing:-1px;line-height:1;}
 .qcard-mini-sub{font-size:11px;font-weight:400;margin-top:4px;opacity:0.65;}
-
 .qcard-labor{background:#c4440a;color:#fff;}
 .qcard-materials{background:#e8dcc8;color:#3a2a10;}
 .qcard-other{background:#1e1c18;color:#fff;}
-.qcard-profit{background:#4a6741;color:#fff;}
-
-/* Note + save */
 .qcard-note{background:var(--white);border-radius:16px;padding:14px 18px;font-size:12px;font-weight:300;color:var(--text2);line-height:1.6;box-shadow:0 2px 8px rgba(0,0,0,0.05);}
 .qcard-discount{background:var(--white);border-radius:16px;padding:14px 16px;box-shadow:0 2px 8px rgba(0,0,0,0.05);}
-.chip.sel{border-color:var(--mango);color:var(--mango);background:var(--mango-glow);}
 .qc-save{display:block;background:var(--white);border:none;border-radius:16px;width:100%;padding:15px 20px;font-family:'Outfit',sans-serif;font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--green);cursor:pointer;transition:all 0.2s;text-align:center;box-shadow:0 2px 8px rgba(0,0,0,0.05);}
 .qc-save:active{background:var(--green-soft);}
 .qc-save.saved{background:var(--green-soft);}
 
-/* Plain AI message */
 .msg-ai-plain{background:var(--white);border:1px solid var(--border);border-radius:4px 20px 20px 20px;padding:14px 20px;font-size:15px;font-weight:300;line-height:1.72;color:var(--text);box-shadow:0 2px 8px rgba(0,0,0,0.04);}
-
-/* Thinking */
 .thinking{align-self:flex-start;display:flex;gap:6px;align-items:center;padding:14px 20px;background:var(--white);border:1px solid var(--border);border-radius:4px 20px 20px 20px;}
 .dot{width:7px;height:7px;border-radius:50%;animation:bob 1.3s infinite ease-in-out;}
 .dot:nth-child(1){background:var(--mango);}
@@ -132,13 +112,13 @@ header{background:var(--white);border-bottom:1px solid var(--border);padding:16p
 .dot:nth-child(3){background:#c8c3bc;animation-delay:0.36s;}
 @keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
 
-/* Chips */
+.chat-tier-lbl{font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--text2);padding:8px 16px 0;}
+.chat-tier-bar{padding:8px 16px 4px;display:flex;gap:7px;flex-shrink:0;}
 .chips{padding:4px 16px 12px;display:flex;gap:7px;overflow-x:auto;flex-shrink:0;scrollbar-width:none;}
 .chips::-webkit-scrollbar{display:none;}
-.chip{font-size:11px;font-weight:600;letter-spacing:0.3px;padding:8px 16px;background:var(--white);border:1.5px solid var(--border);color:var(--text2);border-radius:100px;cursor:pointer;transition:all 0.2s;white-space:nowrap;flex-shrink:0;}
-.chip:active{border-color:var(--mango);color:var(--mango);background:var(--mango-glow);}
+.chip{font-size:11px;font-weight:600;letter-spacing:0.3px;padding:8px 16px;background:var(--white);border:1.5px solid var(--border);color:var(--text2);border-radius:100px;cursor:pointer;transition:all 0.2s;white-space:nowrap;flex-shrink:0;font-family:'Outfit',sans-serif;}
+.chip:active,.chip.sel{border-color:var(--mango);color:var(--mango);background:var(--mango-glow);}
 
-/* Input bar */
 .bar{background:var(--white);border-top:1px solid var(--border);padding:10px 16px 12px;display:flex;gap:10px;align-items:flex-end;flex-shrink:0;}
 #inp{flex:1;background:var(--bg);border:1.5px solid var(--border);color:var(--text);padding:13px 20px;font-family:'Outfit',sans-serif;font-weight:300;font-size:15px;resize:none;min-height:48px;max-height:100px;outline:none;border-radius:100px;transition:border-color 0.2s,background 0.2s;line-height:1.5;}
 #inp:focus{border-color:var(--mango);background:var(--white);}
@@ -147,34 +127,26 @@ header{background:var(--white);border-bottom:1px solid var(--border);padding:16p
 #go:active{transform:scale(0.95);}
 #go:disabled{background:var(--border);box-shadow:none;cursor:not-allowed;}
 
-/* PHOTO SCREEN */
 #photoScreen{background:var(--bg);}
 .scroll{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:16px;}
 .scroll::-webkit-scrollbar{width:0;}
 .sec-lbl{font-size:9px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--text2);}
-
 .upload-zone{background:var(--white);border:2px dashed var(--border);border-radius:var(--radius);padding:40px 20px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;cursor:pointer;transition:all 0.2s;text-align:center;}
 .upload-zone.has-img{padding:0;overflow:hidden;border-style:solid;border-color:var(--mango);}
 .upload-icon{font-size:40px;}
 .upload-title{font-size:17px;font-weight:700;color:var(--text);}
 .upload-sub{font-size:13px;font-weight:300;color:var(--text2);line-height:1.5;}
 #previewImg{width:100%;max-height:260px;object-fit:cover;display:none;border-radius:20px;}
-
 .photo-note{background:var(--white);border:1.5px solid var(--border);border-radius:16px;padding:14px 18px;font-family:'Outfit',sans-serif;font-size:15px;font-weight:300;color:var(--text);outline:none;resize:none;min-height:72px;transition:border-color 0.2s;line-height:1.6;width:100%;}
 .photo-note:focus{border-color:var(--mango);}
 .photo-note::placeholder{color:#b8b2aa;font-style:italic;}
-
 .primary-btn{background:var(--card-dark);color:#fff;border:none;border-radius:16px;padding:17px;font-family:'Outfit',sans-serif;font-size:12px;font-weight:700;letter-spacing:2px;text-transform:uppercase;cursor:pointer;transition:all 0.2s;box-shadow:0 4px 16px rgba(0,0,0,0.15);}
 .primary-btn:active{transform:scale(0.98);}
 .primary-btn:disabled{background:var(--border);box-shadow:none;cursor:not-allowed;color:var(--text2);}
-
 .photo-result{background:var(--white);border-radius:var(--radius);padding:22px;font-size:15px;font-weight:300;line-height:1.72;display:none;box-shadow:0 4px 20px rgba(0,0,0,0.08);}
 .photo-result.show{display:block;animation:rise 0.25s ease;}
-
 .ghost-btn{background:none;border:1.5px solid var(--border);border-radius:12px;padding:11px;font-family:'Outfit',sans-serif;font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--text2);cursor:pointer;transition:all 0.2s;}
-.ghost-btn:active{border-color:#c4440a;color:#c4440a;}
 
-/* ESTIMATES */
 #estimatesScreen{background:var(--bg);}
 .est-list{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:12px;}
 .est-list::-webkit-scrollbar{width:0;}
@@ -182,7 +154,6 @@ header{background:var(--white);border-bottom:1px solid var(--border);padding:16p
 .empty-icon{font-size:48px;}
 .empty-title{font-size:20px;font-weight:800;color:var(--text);}
 .empty-sub{font-size:14px;font-weight:300;color:var(--text2);line-height:1.65;}
-
 .est-card{background:var(--white);border-radius:var(--radius);overflow:hidden;animation:rise 0.25s ease;box-shadow:0 2px 10px rgba(0,0,0,0.06);}
 .est-card-stripe{height:4px;background:var(--mango);}
 .est-card-top{padding:16px 20px 14px;display:flex;align-items:flex-start;gap:12px;}
@@ -197,7 +168,6 @@ header{background:var(--white);border-bottom:1px solid var(--border);padding:16p
 .est-action.share{color:var(--green);}
 .est-action.del{color:#c4440a;}
 
-/* SETTINGS */
 #settingsScreen{background:var(--bg);}
 .settings-card{background:var(--white);border-radius:var(--radius);overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,0.06);flex-shrink:0;}
 .settings-row{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid var(--border);gap:12px;}
@@ -206,14 +176,7 @@ header{background:var(--white);border-bottom:1px solid var(--border);padding:16p
 .s-sub{font-size:11px;font-weight:300;color:var(--text2);}
 .settings-input{width:80px;background:var(--bg);border:1.5px solid var(--border);border-radius:10px;padding:10px;font-family:'Outfit',sans-serif;font-size:15px;font-weight:700;color:var(--text);text-align:center;outline:none;transition:border-color 0.2s;}
 .settings-input:focus{border-color:var(--mango);background:var(--white);}
-.tier-btn.sel{border-color:var(--mango);color:var(--mango);background:var(--mango-glow);}
-.tier-badge{font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;padding:5px 12px;border-radius:100px;cursor:pointer;border:1.5px solid var(--border);color:var(--text2);background:none;}
-.tier-badge.high{border-color:var(--card-rust);color:var(--card-rust);background:rgba(196,68,10,0.08);}
-.tier-badge.builder{border-color:var(--card-tan);color:#7a6a4a;background:rgba(200,185,154,0.2);}
-.chat-tier-bar{padding:10px 16px 0;display:flex;gap:7px;flex-shrink:0;}
-.chat-tier-lbl{font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--text2);padding:0 16px;margin-top:8px;}
 
-/* MODALS */
 .modal-bg{display:none;position:fixed;inset:0;background:rgba(26,24,20,0.5);z-index:200;align-items:flex-end;justify-content:center;backdrop-filter:blur(4px);}
 .modal-bg.open{display:flex;}
 .modal{background:var(--white);border-radius:28px 28px 0 0;padding:28px 22px 44px;width:100%;max-width:480px;display:flex;flex-direction:column;gap:16px;animation:slideUp 0.28s cubic-bezier(0.34,1.2,0.64,1);max-height:85vh;overflow-y:auto;}
@@ -231,13 +194,11 @@ header{background:var(--white);border-bottom:1px solid var(--border);padding:16p
 .modal-cancel{background:none;border:none;font-family:'Outfit',sans-serif;font-size:14px;font-weight:500;color:var(--text2);cursor:pointer;text-align:center;padding:4px;}
 .detail-body{font-size:14px;font-weight:300;line-height:1.85;white-space:pre-wrap;background:var(--bg);border-radius:14px;padding:18px;color:var(--text);}
 .detail-share{background:var(--card-sage);color:#fff;border:none;border-radius:14px;padding:16px;font-family:'Outfit',sans-serif;font-size:15px;font-weight:700;cursor:pointer;}
-
 #fileInput{display:none;}
 </style>
 </head>
 <body>
 
-<!-- SPLASH -->
 <div id="splash">
   <div class="splash-logo"><b>407</b>AI</div>
   <div class="splash-bar"></div>
@@ -247,12 +208,11 @@ header{background:var(--white);border-bottom:1px solid var(--border);padding:16p
 <header>
   <div class="logo"><b>407</b>AI</div>
   <div style="margin-left:auto;display:flex;align-items:center;gap:8px">
-    <button class="tier-badge" id="tierBadge" onclick="switchTab('settings')" style="display:none;margin-left:0"></button>
-    <button class="key-btn" id="keyBtn" onclick="openKeyModal()" style="display:none;margin-left:0">API Key</button>
+    <button class="tier-badge" id="tierBadge" onclick="switchTab('settings')"></button>
+    <button class="key-btn" id="keyBtn" onclick="openKeyModal()" style="display:none">API Key</button>
   </div>
 </header>
 
-<!-- CHAT -->
 <div class="screen active" id="chatScreen">
   <div class="chat-tier-lbl">Pricing Tier</div>
   <div class="chat-tier-bar">
@@ -282,7 +242,6 @@ header{background:var(--white);border-bottom:1px solid var(--border);padding:16p
   </div>
 </div>
 
-<!-- PHOTO -->
 <div class="screen" id="photoScreen">
   <div class="scroll">
     <div class="sec-lbl">Photo Quote</div>
@@ -303,25 +262,23 @@ header{background:var(--white);border-bottom:1px solid var(--border);padding:16p
   </div>
 </div>
 
-<!-- ESTIMATES -->
 <div class="screen" id="estimatesScreen">
   <div class="est-list" id="estList"></div>
 </div>
 
-<!-- SETTINGS -->
 <div class="screen" id="settingsScreen">
   <div class="scroll" style="gap:18px;">
-    <div class="sec-lbl">Client Tier</div>
+    <div class="sec-lbl">Pricing Tier</div>
     <div class="settings-card">
-      <div class="settings-row">
-        <div><div class="s-lbl">Pricing Tier</div><div class="s-sub">Which price band the estimator quotes from</div></div>
+      <div class="settings-row" style="flex-direction:column;align-items:flex-start;gap:12px;">
+        <div><div class="s-lbl">Select Your Client Tier</div><div class="s-sub">Changes price range for every quote</div></div>
+        <div style="display:flex;gap:6px;width:100%">
+          <button type="button" class="chip tier-opt" data-tier="builder" onclick="selectTier('builder')" style="flex:1;text-align:center">Builder-Grade</button>
+          <button type="button" class="chip tier-opt" data-tier="standard" onclick="selectTier('standard')" style="flex:1;text-align:center">Standard</button>
+          <button type="button" class="chip tier-opt" data-tier="high" onclick="selectTier('high')" style="flex:1;text-align:center">High Quality</button>
+        </div>
+        <div id="tierDesc" style="font-size:12px;font-weight:300;color:var(--text2);line-height:1.6;padding:10px 14px;background:var(--bg);border-radius:12px;width:100%"></div>
       </div>
-      <div style="padding:0 20px 18px;display:flex;gap:6px">
-        <button type="button" class="tier-btn tier-opt" data-tier="builder" onclick="selectTier('builder')" style="flex:1;padding:12px 4px;border-radius:14px;border:1.5px solid var(--border);background:var(--bg);font-family:'Outfit',sans-serif;font-size:11px;font-weight:700;cursor:pointer;color:var(--text2)">Builder-Grade</button>
-        <button type="button" class="tier-btn tier-opt" data-tier="standard" onclick="selectTier('standard')" style="flex:1;padding:12px 4px;border-radius:14px;border:1.5px solid var(--border);background:var(--bg);font-family:'Outfit',sans-serif;font-size:11px;font-weight:700;cursor:pointer;color:var(--text2)">Standard</button>
-        <button type="button" class="tier-btn tier-opt" data-tier="high" onclick="selectTier('high')" style="flex:1;padding:12px 4px;border-radius:14px;border:1.5px solid var(--border);background:var(--bg);font-family:'Outfit',sans-serif;font-size:11px;font-weight:700;cursor:pointer;color:var(--text2)">High Quality</button>
-      </div>
-      <div class="s-sub" style="padding:0 20px 18px;margin-top:-10px">Builder-Grade and High Quality multipliers are estimates — only Standard uses real 407 price-sheet numbers.</div>
     </div>
     <div class="sec-lbl">Your Rates</div>
     <div class="settings-card">
@@ -334,31 +291,20 @@ header{background:var(--white);border-bottom:1px solid var(--border);padding:16p
         <input class="settings-input" id="setHelperRate" type="number" placeholder="45" />
       </div>
       <div class="settings-row">
-        <div><div class="s-lbl">Price Adjustment</div><div class="s-sub">Increase or decrease estimates for your market (%)</div></div>
+        <div><div class="s-lbl">Price Adjustment</div><div class="s-sub">Increase or decrease estimates (%)</div></div>
         <input class="settings-input" id="setMarkup" type="number" placeholder="20" />
       </div>
       <div class="settings-row">
-        <div><div class="s-lbl">Client Discount</div><div class="s-sub">% shown as discount to client on estimates</div></div>
-        <input class="settings-input" id="setDiscount" type="number" placeholder="5" min="0" max="20" />
+        <div><div class="s-lbl">Client Discount</div><div class="s-sub">Default % shown as discount to client</div></div>
+        <input class="settings-input" id="setDiscount" type="number" placeholder="0" min="0" max="30" />
       </div>
     </div>
     <input type="hidden" id="setCity" value="Orlando" />
-    <div style="background:var(--mango-soft);border:1px solid var(--mango-border);border-radius:16px;padding:16px 18px;">
-      <div style="font-size:10px;font-weight:700;letter-spacing:1.5px;color:var(--mango-dark);margin-bottom:8px;text-transform:uppercase">💡 Price Adjustment Guide</div>
-      <div style="font-size:13px;font-weight:300;color:var(--text2);line-height:1.8">
-        Lower cost area → <strong>10–15%</strong><br>
-        Standard market → <strong>20%</strong><br>
-        Higher cost area → <strong>25–30%</strong><br>
-        Premium market → <strong>35–40%</strong>
-      </div>
-    </div>
-
     <button class="primary-btn" onclick="saveSettings()">Save Settings</button>
     <div id="settingsSaved" style="text-align:center;font-size:12px;font-weight:700;letter-spacing:1px;color:var(--green);display:none">✓ SAVED</div>
   </div>
 </div>
 
-<!-- BOTTOM TABS -->
 <div class="tabs">
   <div class="tab active" id="tab-chat" onclick="switchTab('chat')">
     <div class="tab-top-label">$</div>
@@ -378,7 +324,6 @@ header{background:var(--white);border-bottom:1px solid var(--border);padding:16p
   </div>
 </div>
 
-<!-- KEY MODAL -->
 <div class="modal-bg" id="keyModal" onclick="closeKeyModal(event)">
   <div class="modal">
     <div class="modal-handle"></div>
@@ -393,7 +338,6 @@ header{background:var(--white);border-bottom:1px solid var(--border);padding:16p
   </div>
 </div>
 
-<!-- DETAIL MODAL -->
 <div class="modal-bg" id="detailModal" onclick="closeDetail(event)">
   <div class="modal">
     <div class="modal-handle"></div>
@@ -407,23 +351,46 @@ header{background:var(--white);border-bottom:1px solid var(--border);padding:16p
 
 <script>
 let history=[],keyVis=false,currentDetail=null,currentPhotoB64=null;
+const pendingCards={};
 
 function fetchWithTimeout(url,opts,ms){
   const controller=new AbortController();
   const timer=setTimeout(()=>controller.abort(),ms);
   return fetch(url,{...opts,signal:controller.signal}).finally(()=>clearTimeout(timer));
 }
-
 function escHtml(str){
   return String(str==null?'':str).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 }
-const pendingCards={};
-function saveQuoteCard(uid,btn){
-  const d=pendingCards[uid];if(!d)return;
-  addEstimate(d.title,d.quote,d.text);
-  btn.textContent='✓ Saved to Estimates';btn.classList.add('saved');btn.onclick=null;
-  delete pendingCards[uid];
-}
+
+// ── TIERS ── fixed multipliers with real price anchors
+const TIERS={
+  builder:{
+    short:'Builder-Grade',
+    label:'BUILDER-GRADE',
+    desc:'Basic materials, stock cabinets, standard fixtures. Entry level for budget clients.',
+    kitchenFull:9500, kitchenLabor:3500,
+    bathFull:6000, bathLabor:2500, bathBand:4500,
+    paintMult:0.85, floorMult:0.85, otherMult:0.85
+  },
+  standard:{
+    short:'Standard',
+    label:'STANDARD',
+    desc:'Real 407 Renovations price sheet. Quality materials, professional finish.',
+    kitchenFull:15000, kitchenLabor:6000,
+    bathFull:12000, bathLabor:3500, bathBand:8000,
+    paintMult:1, floorMult:1, otherMult:1
+  },
+  high:{
+    short:'High Quality',
+    label:'HIGH QUALITY / LUXURY',
+    desc:'Premium materials, custom finishes, white-glove service. Luxury clients.',
+    kitchenFull:45000, kitchenLabor:18000,
+    bathFull:52000, bathLabor:14000, bathBand:40000,
+    paintMult:1.4, floorMult:1.5, otherMult:1.3
+  }
+};
+
+let selectedTier='standard';
 
 function getKey(){return localStorage.getItem('407ai_key')||'';}
 function saveKey(){
@@ -447,42 +414,39 @@ function switchTab(t){
   if(t==='settings')loadSettingsUI();
 }
 
-const TIERS={
-  builder:{short:'Builder-Grade',label:'BUILDER-GRADE',mult:0.65,
-    note:'This client is being quoted at the BUILDER-GRADE tier — entry-level finishes, stock fixtures, no upgrades. Kitchen and bathroom full renovations below already use builder-grade anchor pricing (~0.65x standard). NOTE: this multiplier is an assumption (there is no real builder-grade price sheet yet) — treat it as a rough discount off standard, not a precise figure. For any other job type with no separate builder-grade price listed, lean toward the bottom of the given range and skip upgrade add-ons unless the client asks for them.'},
-  standard:{short:'Standard',label:'STANDARD',mult:1,
-    note:'This is the standard, everyday pricing tier — real 407 Renovations price-sheet numbers.'},
-  high:{short:'High Quality',label:'HIGH QUALITY / LUXURY',mult:3.5,
-    note:'This client is being quoted at the HIGH QUALITY/LUXURY tier. Kitchen and bathroom full renovations below already use high-quality anchor pricing (~3.5x standard, reflecting premium materials, custom finishes, and white-glove service). NOTE: this multiplier is an assumption (there is no real high-quality price sheet yet) — treat it as a rough estimate, not a precise figure. For any other job type with no separate high-quality price listed, lean toward the top of the given range and favor premium/upgrade add-ons — do not invent an extra multiplier beyond what is listed here.'}
-};
-function getTier(s){return TIERS[s&&s.tier]||TIERS.standard;}
-
-let selectedTier='standard';
 function getSettings(){try{return JSON.parse(localStorage.getItem('407ai_settings')||'{}');}catch{return{};}}
+
 function selectTier(t){
   if(!TIERS[t])t='standard';
   selectedTier=t;
   document.querySelectorAll('.tier-opt').forEach(el=>el.classList.toggle('sel',el.dataset.tier===t));
   const s=getSettings();s.tier=t;localStorage.setItem('407ai_settings',JSON.stringify(s));
   updateTierBadge();
+  // Update desc in settings if visible
+  const desc=document.getElementById('tierDesc');
+  if(desc)desc.textContent=TIERS[t].desc;
 }
+
 function updateTierBadge(){
   const s=getSettings();
   const tierKey=TIERS[s.tier]?s.tier:'standard';
   const badge=document.getElementById('tierBadge');
   badge.textContent=(tierKey==='high'?'★ ':'')+TIERS[tierKey].short;
-  badge.classList.toggle('high',tierKey==='high');
-  badge.classList.toggle('builder',tierKey==='builder');
-  badge.style.display='block';
+  badge.className='tier-badge'+(tierKey==='high'?' high':tierKey==='builder'?' builder':'');
 }
+
 function loadSettingsUI(){
   const s=getSettings();
   document.getElementById('setLaborRate').value=s.laborRate||'';
   document.getElementById('setHelperRate').value=s.helperRate||'';
   document.getElementById('setMarkup').value=s.markup||'';
   document.getElementById('setDiscount').value=s.discount||'';
-  selectTier(TIERS[s.tier]?s.tier:'standard');
+  const t=TIERS[s.tier]?s.tier:'standard';
+  selectTier(t);
+  const desc=document.getElementById('tierDesc');
+  if(desc)desc.textContent=TIERS[t].desc;
 }
+
 function saveSettings(){
   const s={
     laborRate:document.getElementById('setLaborRate').value||'65',
@@ -504,144 +468,85 @@ function buildSystem(){
   const helperRate=parseFloat(s.helperRate)||45;
   const markup=parseFloat(s.markup)||20;
   const city=s.city||'Orlando';
-  const cityMult={'new york':1.8,'nyc':1.8,'los angeles':1.6,'la':1.6,'san francisco':1.7,'sf':1.7,'miami':1.3,'fort lauderdale':1.2,'boca raton':1.3,'chicago':1.4,'boston':1.5,'washington':1.4,'dc':1.4,'seattle':1.5,'denver':1.3,'austin':1.2,'dallas':1.15,'houston':1.1,'phoenix':1.1,'las vegas':1.2,'tampa':1.05,'jacksonville':0.95,'orlando':1.0,'kissimmee':0.95,'atlanta':1.1,'charlotte':1.05,'nashville':1.1};
-  const m=cityMult[city.toLowerCase().trim()]||1.0;
+  const tierKey=TIERS[s.tier]?s.tier:'standard';
+  const tier=TIERS[tierKey];
   const twoW=laborRate+helperRate;
 
-  const tierObj=getTier(s);
-  const tierMult=tierObj.mult;
-  const tierLabel=tierObj.label;
-  const tierNote=tierObj.note;
+  const cityMult={'new york':1.8,'nyc':1.8,'los angeles':1.6,'la':1.6,'san francisco':1.7,'sf':1.7,'miami':1.3,'fort lauderdale':1.2,'boca raton':1.3,'chicago':1.4,'boston':1.5,'washington':1.4,'dc':1.4,'seattle':1.5,'denver':1.3,'austin':1.2,'dallas':1.15,'houston':1.1,'phoenix':1.1,'las vegas':1.2,'tampa':1.05,'jacksonville':0.95,'orlando':1.0,'kissimmee':0.95,'atlanta':1.1,'charlotte':1.05,'nashville':1.1};
+  const m=cityMult[city.toLowerCase().trim()]||1.0;
 
-  return `You are 407AI — professional construction quoting assistant for ${city}.
-Give CONSISTENT quotes. Same job = same price range every time.
+  const kFull=Math.round(tier.kitchenFull*m);
+  const kLabor=Math.round(tier.kitchenLabor*m);
+  const bFull=Math.round(tier.bathFull*m);
+  const bLabor=Math.round(tier.bathLabor*m);
+  const bBand=Math.round(tier.bathBand*m);
+  const pm=tier.paintMult;
+  const fm=tier.floorMult;
+  const om=tier.otherMult;
 
-CLIENT TIER: ${tierLabel}
-${tierNote}
+  return `You are 407AI — professional construction quoting for ${city}.
+Give CONSISTENT quotes. Same job = same price. Do math silently. Output final numbers only.
+
+ACTIVE TIER: ${tier.label}
+${tier.desc}
 
 LABOR: Lead $${laborRate}/hr | Helper $${helperRate}/hr | Both $${twoW}/hr | Profit ${markup}%
-CITY MULTIPLIER: ${m}x for ${city}
 
-⚠️ PRICES BELOW ARE FROM THE REAL 407 RENOVATIONS PRICE SHEET — NEVER QUOTE BELOW THESE FOR ANY REASON UNLESS MARKED AS A NEGOTIABLE BAND:
+KITCHEN (baseline 150 sqft):
+- Full reno with materials: $${kFull} at 150 sqft — scale proportionally for other sizes
+- Labor only: $${kLabor}
+- Title must say "${tier.label} KITCHEN" not "Standard Kitchen"
 
-KITCHEN — base price is for a standard ~150 sqft kitchen (sticker includes: 20 cabinets supply & install, LED lights inside cabinets, countertop fabrication & set, backsplash tile, plumbing rough & finish, electrical outlets & hood, demo & haul):
-- Full reno with all materials: $${Math.round(15000*m*tierMult)} at 150 sqft baseline
-- Full reno labor only: $${Math.round(6000*m*tierMult)} at 150 sqft baseline
-- If no sqft is given, assume the 150 sqft baseline and use the base price above.
-- If actual kitchen sqft is given and differs from 150, scale the price: adjusted = base price × (actual_sqft / 150), rounded to nearest $100. Applies in both directions — no separate floor below the scaled amount.
-- Add-ons on top of the base: extra cabinet beyond 20 → $350 each | cabinet with glass door → $180 each | soft-close upgrade → $95 each | under-cabinet LED strip → $300/section
-- High-end/custom kitchen beyond what's listed: add 40%
+BATHROOM (baseline 64 sqft / 8x8):
+- Full reno with materials: sticker $${bFull}, negotiable band $${bBand}–$${bFull}
+- Labor only: $${bLabor}
+- Title must say "${tier.label} BATHROOM" not "Standard Bathroom"
+- Shower only with materials: $${Math.round(5500*m*tier.otherMult)}
 
-BATHROOM — base price is for a standard ~64 sqft (8x8) bathroom (sticker includes: custom design & layout, demo & haul, shower wall tile 24"×48", floor tile, drywall/cement board, toilet supply & install, vanity supply & install, plumbing rough & finish, LED lights, grout/seal/cleanup):
-- Full reno with all materials: sticker/anchor price is $${Math.round(12000*m*tierMult)} at 64 sqft baseline — in practice this realistically negotiates down to about $${Math.round(8000*m*tierMult)} for a full job, so treat $${Math.round(8000*m*tierMult)}–$${Math.round(12000*m*tierMult)} as the real quoting band, not a hard $${Math.round(12000*m*tierMult)} floor
-- Full reno labor only (client supplies materials): $${Math.round(3500*m*tierMult)} — simple bathroom, 5 days or less (never below this)
-- Shower with materials (smaller scope than a full reno): $${Math.round(5500*m*tierMult)} (never below this)
-- If no sqft is given, assume the 64 sqft baseline and use the sticker price above.
-- If actual bathroom sqft is given and differs from 64, scale the sticker price: adjusted = sticker × (actual_sqft / 64), rounded to nearest $100 (scale the negotiable band proportionally too). Applies in both directions.
-- Add-ons on top of the base: 2nd floor surcharge → $2,000 | custom vanity supply & install → $1,500 | premium toilet supply & install → $500 | LED mirror supply & install → $300 | niche/shelf, any size → $120/linear ft | frameless glass shower door → $1,000 | freestanding tub install → $1,200 | heated floor (electric mat) → $900 | double vanity upgrade → $600 | premium 24"×48" tile upgrade (materials only) → $3–$10/sf
-- High-end/custom bathroom beyond what's listed: add 40%
+PAINTING (multiplier ${pm}x standard):
+- 1 room walls only: $${Math.round(300*pm)}–$${Math.round(450*pm)}
+- Whole house 3bed/2bath: $${Math.round(3800*pm)}–$${Math.round(6000*pm)}
+- Exterior 1-story: $${Math.round(2200*pm)}
+- Exterior 2-story: $${Math.round(3200*pm)}
 
-INTERIOR DESIGN SERVICES (real services you can quote if asked):
-- On-site consultation (1–2 hrs): $200
-- Space planning & layout: $350
-- Material & finish selection: $250
-- Mood board & concept: $200
-- Full design package: $750
-- Project supervision (per visit): $150
+FLOORING (multiplier ${fm}x):
+- LVP installed: $${Math.round(2.5*fm).toFixed(2)}/sqft
+- Laminate: $${Math.round(2*fm).toFixed(2)}/sqft
+- Hardwood: $${Math.round(4.5*fm).toFixed(2)}/sqft
 
-TILE LABOR (labor only — if you also supply the tile/material, add a reasonable material cost per sqft on top):
-- 24"×24" tile install: $3.00/sf
-- 32"×32" tile install: $3.50/sf
-- 24"×48" tile install: $4.25/sf
-- Backsplash install (full kitchen): $950
+TILE LABOR:
+- 24x24: $3/sqft | 32x32: $3.50/sqft | 24x48: $4.25/sqft
 
-FLOORING:
-- LVP install: $2.50/sf
-- Hardwood install: $4.50/sf
-- Laminate install: $2.00/sf
-- Subfloor repair: $600
-- Baseboards: $3.50/lf
-- Demo old flooring: $350
+QUICK SERVICES (multiplier ${om}x):
+- Toilet install: $${Math.round(250*om)}
+- Fan install: $${Math.round(180*om)}
+- Niche labor: $${Math.round(800*om)} min
+- Custom stairs: $${Math.round(3000*om)} min
+- Fence: $${Math.round(24*om)}/linear ft
+- Septic tank labor: $${Math.round(2500*om)} + $25/ft pipe
+- Hourly minimum: $${Math.round(120*om)}/hr, 2hr min
 
-PAINTING:
-- Interior room (avg): $350
-- Full house interior (2,000 sf): $4,500
-- Exterior — 1 floor, 1,500 sf (labor + materials): $2,200
-- Kitchen cabinets repaint (full set): $3,500
-- Trim & doors: $600
-
-QUICK SERVICES (use these exact prices for these specific jobs — do not estimate hourly instead):
-- RV spot — septic, 50 amp power, water & connections: $7,500
-- Septic tank install, labor only (2 days): $2,500 (+$25/ft if the pipe run is unusually long)
-- Septic tank install, labor + unit + installation: $3,200
-- TV wall mount install: $220 | with power relocation: $320
-- Ceiling fan install: $180 | with new wiring: add $80–150
-- Toilet install/replace: $250
-- Faucet install/replace: $150
-- Shower head/fixture replace: $180
-- Vanity install: $350
-- Mirror install: $120
-- Towel bar & accessories set: $100
-- Light fixture install: $150
-- Door install (interior): $250
-- Door handle/lock replace: $95
-
-DRYWALL:
-- Patch & texture (per hole): $120
-- Full room drywall: $900
-- Popcorn removal + texture + paint: $6.00/sf
-
-INSTALLATION PRICING RULE (cost-plus, for items/fixtures not listed above):
-When installing any item/fixture/product supplied by contractor:
-- Labor charge = 1x the cost of the material
-- Total = material cost + equal labor = 2x material cost minimum
-- Example: door costs $2,000 → charge $2,000 labor → total $4,000 minimum
-- If client supplies the material → charge only labor per the LABOR RATES table below
-
-TRANSPORT: $${Math.round(50*m)} | DISPOSAL large jobs: $${Math.round(120*m)}
-
-FENCE:
-- Installation: MINIMUM $24/linear ft (never below this)
-- Custom/decorative fence: add 30%
-
-LABOR RATES (use this table for ANY job not covered by a specific category above — do not default to a flat hourly guess):
-- Hourly rate: $100/hr
-- Half day (4 hrs): $400
-- Full day (8 hrs): $800
-- 2-day job: $1,600
-- 3-day job: $2,400
-- Week (5 days): $4,000
-- Emergency / same-day: $150/hr
-- Minimum charge for any small job: 2 hrs at the hourly rate ($200)
-
-STAIRS:
-- Custom stairs: MINIMUM $3,000 (never below this)
-- With railing + LED lighting: add $800-1,500
-- High-end custom stairs with railing + LED: MINIMUM $4,500
+INSTALLATION RULE: contractor supplies item → charge 1x item cost as labor (total = 2x item cost)
+TRANSPORT: $${Math.round(50*m)} | DISPOSAL large: $${Math.round(120*m)}
 
 RULES:
-1. NEVER quote below the stated minimums, or outside the given negotiable band for bathroom — not for any reason, not even if client brings all materials
-2. "I bring materials" = use labor-only pricing where given, otherwise the LABOR RATES table
-3. If no size/sqft is given, assume the standard baseline size stated above for that job type — do not silently invent a different size
-4. Scale price changes from size using the proportional formulas above, not gut-feel adjustment
-5. Custom work beyond what's listed: add 40%
-6. Small jobs = 1 worker | Large renos = 2 workers
-7. Be consistent — the same job description, asked again, must produce the same price. Do not vary the number for variety's sake.
-8. If you assumed a size/scope the client didn't specify, say so briefly in NOTE
+1. NEVER go below stated minimums
+2. "I bring materials" = labor only pricing
+3. ALWAYS include the tier name in the TITLE (e.g. "High Quality Kitchen Reno" not "Kitchen Standard Renovation")
+4. Scale kitchen/bath prices proportionally if size given
+5. Be consistent — same job = same price every time
 
-Do the math silently before responding. Do not show reasoning, do not second-guess or restate corrected numbers — output the final numbers once, in the format below, and nothing else.
-
-RESPOND ONLY in this exact format:
-TITLE: [job name max 4 words]
+RESPOND ONLY in this format:
+TITLE: [tier + job name, max 5 words]
 LABOR: $X
 MATERIALS: $X
-MAT_LIST: [item1 ~$X, item2 ~$X]
+MAT_LIST: [item ~$X, item ~$X]
 OTHER: $X
 OTHER_LIST: [Transport ~$X, Disposal ~$X]
 SUBTOTAL: $X
 PROFIT: $X
 QUOTE: $X – $X
-NOTE: [one sentence what could change this price]`;
+NOTE: [one sentence what could change price]`;
 }
 
 function buildPhotoSystem(){
@@ -650,58 +555,37 @@ function buildPhotoSystem(){
   const helperRate=parseFloat(s.helperRate)||45;
   const markup=parseFloat(s.markup)||20;
   const city=s.city||'Orlando';
-  const twoWorkers=laborRate+helperRate;
-  const cityMult={'new york':1.8,'nyc':1.8,'los angeles':1.6,'miami':1.3,'chicago':1.4,'boston':1.5,'seattle':1.5,'denver':1.3,'austin':1.2,'dallas':1.15,'houston':1.1,'tampa':1.05,'orlando':1.0,'atlanta':1.1};
-  const m=cityMult[city.toLowerCase().trim()]||1.0;
-  const tierObj=getTier(s);
-  const tierMult=tierObj.mult;
-  const tierLabel=tierObj.label;
-  const tierHint=tierObj===TIERS.high?' — lean toward the top of any range and premium-grade materials/finishes.':tierObj===TIERS.builder?' — lean toward the bottom of any range, stock materials, no upgrades.':'';
+  const tierKey=TIERS[s.tier]?s.tier:'standard';
+  const tier=TIERS[tierKey];
+  return `You are 407AI — construction quoting for ${city}.
+TIER: ${tier.label} — ${tier.desc}
+LABOR: Lead $${laborRate}/hr | Helper $${helperRate}/hr | ${markup}% profit
 
-  return `You are 407AI — construction quoting assistant for ${city}.
-Analyze the photo and give a renovation quote.
+KEY PRICES:
+- Kitchen full reno: $${Math.round(tier.kitchenFull)} | labor only: $${Math.round(tier.kitchenLabor)}
+- Bathroom full reno: $${Math.round(tier.bathBand)}–$${Math.round(tier.bathFull)} | labor only: $${Math.round(tier.bathLabor)}
+- Tile: $3–$4.25/sqft labor | Flooring LVP: $${(2.5*tier.floorMult).toFixed(2)}/sqft
 
-CLIENT TIER: ${tierLabel}${tierHint}
-YOUR RATES: Lead $${laborRate}/hr | Helper $${helperRate}/hr | 2 workers = $${twoWorkers}/hr | ${markup}% profit | City material multiplier: ${m}x
+Analyze the photo, identify the job, and give a quote grounded in these prices.
 
-REAL ANCHOR PRICES FROM THE 407 RENOVATIONS PRICE SHEET — if the photo shows one of these job types, ground your quote in these, don't estimate from scratch:
-- Full bathroom reno (~64 sqft baseline), all materials: sticker $${Math.round(12000*m*tierMult)}, realistic band $${Math.round(8000*m*tierMult)}–$${Math.round(12000*m*tierMult)}; labor only $${Math.round(3500*m*tierMult)}
-- Full kitchen reno (~150 sqft baseline), all materials: $${Math.round(15000*m*tierMult)}; labor only $${Math.round(6000*m*tierMult)}
-- Tile install labor: 24"×24" $3/sf, 32"×32" $3.50/sf, 24"×48" $4.25/sf
-- Flooring: LVP $2.50/sf, laminate $2/sf, hardwood $4.50/sf
-- Painting: interior room $350, full house (2,000sf) $4,500, exterior 1-story (1,500sf) $2,200
-- Quick items: toilet $250, ceiling fan $180, vanity $350, light fixture $150, interior door $250
-- Scale kitchen/bathroom prices proportionally if the room is clearly a different size than the baseline.
-For anything not listed above: estimate hours needed × labor rate + materials cost × ${m} + ${markup}% profit.
-Always show your math in the breakdown.
-
-RESPOND ONLY in this exact format:
-TITLE: [job name max 4 words]
-SCOPE: [what you see and what needs doing, 1 line]
+RESPOND ONLY:
+TITLE: [tier + job, max 5 words]
+SCOPE: [what you see, 1 line]
 LABOR: $X
 MATERIALS: $X
 OTHER: $X
 SUBTOTAL: $X
 PROFIT: $X
 QUOTE: $X – $X
-NOTE: [one sentence what could change this price]`;
+NOTE: [one sentence]`;
 }
 
 function parseStructured(text){
   const get=(key)=>{const ms=[...text.matchAll(new RegExp('^'+key+':\\s*(.+)','gim'))];return ms.length?ms[ms.length-1][1].trim():'';};
   return{title:get('TITLE'),labor:get('LABOR'),materials:get('MATERIALS'),matList:get('MAT_LIST'),other:get('OTHER'),otherList:get('OTHER_LIST'),subtotal:get('SUBTOTAL'),profit:get('PROFIT'),quote:get('QUOTE'),scope:get('SCOPE'),note:get('NOTE')};
 }
-
-function isValidQuote(q){
-  return /\$\s*[\d,]+(\.\d+)?\s*[–-]\s*\$?\s*[\d,]+(\.\d+)?/.test(q||'');
-}
-
-function toggleExpand(id){
-  const el=document.getElementById(id);
-  if(!el)return;
-  const open=el.style.display==='block';
-  el.style.display=open?'none':'block';
-}
+function isValidQuote(q){return /\$\s*[\d,]+(\.\d+)?\s*[–-]\s*\$?\s*[\d,]+(\.\d+)?/.test(q||'');}
+function toggleExpand(id){const el=document.getElementById(id);if(!el)return;el.style.display=el.style.display==='block'?'none':'block';}
 
 function computeDiscount(quoteStr,pct){
   const nums=(quoteStr.match(/[\d,]+(?:\.\d+)?/g)||[]).map(n=>parseFloat(n.replace(/,/g,'')));
@@ -713,25 +597,12 @@ function computeDiscount(quoteStr,pct){
   }
   return{discounted:`$${disc(nums[0]).toLocaleString()}`,amount:Math.round(nums[0]*(pct/100))};
 }
-
 function discountBoxHTML(quoteStr,pct){
-  const r=computeDiscount(quoteStr,pct);
-  if(!r)return'';
-  return`
-    <div style="display:flex;justify-content:space-between;font-size:13px">
-      <span style="color:var(--text2);font-weight:300">Original price</span>
-      <span style="font-weight:500;text-decoration:line-through;color:var(--text2)">${escHtml(quoteStr)}</span>
-    </div>
-    <div style="display:flex;justify-content:space-between;font-size:13px">
-      <span style="color:var(--green);font-weight:600">Discount (${pct}%)</span>
-      <span style="font-weight:600;color:var(--green)">- $${r.amount.toLocaleString()}</span>
-    </div>
-    <div style="display:flex;justify-content:space-between;font-size:18px;border-top:1px solid var(--green-border);padding-top:8px;margin-top:2px">
-      <span style="color:var(--text);font-weight:700">Client Price</span>
-      <span style="font-weight:900;color:var(--green)">${escHtml(r.discounted)}</span>
-    </div>`;
+  const r=computeDiscount(quoteStr,pct);if(!r)return'';
+  return`<div style="display:flex;justify-content:space-between;font-size:13px"><span style="color:var(--text2);font-weight:300">Original price</span><span style="font-weight:500;text-decoration:line-through;color:var(--text2)">${escHtml(quoteStr)}</span></div>
+<div style="display:flex;justify-content:space-between;font-size:13px"><span style="color:var(--green);font-weight:600">Discount (${pct}%)</span><span style="font-weight:600;color:var(--green)">- $${r.amount.toLocaleString()}</span></div>
+<div style="display:flex;justify-content:space-between;font-size:18px;border-top:1px solid var(--green-border);padding-top:8px;margin-top:6px"><span style="color:var(--text);font-weight:700">Client Price</span><span style="font-weight:900;color:var(--green)">${escHtml(r.discounted)}</span></div>`;
 }
-
 function applyDiscount(uid,pct){
   const d=pendingCards[uid];if(!d)return;
   const box=document.getElementById('disc-'+uid);if(!box)return;
@@ -739,62 +610,45 @@ function applyDiscount(uid,pct){
   if(pct<=0){box.style.display='none';box.innerHTML='';return;}
   const html=discountBoxHTML(d.quote,pct);
   if(!html){box.style.display='none';return;}
-  box.style.display='flex';box.innerHTML=html;
+  box.style.cssText='display:flex;flex-direction:column;gap:6px;margin-top:10px;background:var(--green-soft);border:1px solid var(--green-border);border-radius:14px;padding:14px 16px';
+  box.innerHTML=html;
+}
+function saveQuoteCard(uid,btn){
+  const d=pendingCards[uid];if(!d)return;
+  addEstimate(d.title,d.quote,d.text);
+  btn.textContent='✓ Saved to Estimates';btn.classList.add('saved');btn.onclick=null;
+  delete pendingCards[uid];
 }
 
 function renderQuoteCard(p,rawText){
   const s=getSettings();
   const uid=Date.now();
   pendingCards[uid]={title:p.title||'Job Estimate',quote:p.quote||'',text:rawText};
-
   const presets=[0,5,10,15,20];
   const settingsPct=parseFloat(s.discount)||0;
   const defaultPct=presets.reduce((a,b)=>Math.abs(b-settingsPct)<Math.abs(a-settingsPct)?b:a,0);
   const initialBox=p.quote&&defaultPct>0?discountBoxHTML(p.quote,defaultPct):'';
+  const matItems=p.matList?p.matList.replace(/[\[\]]/g,'').split(',').map(i=>`<div style="padding:5px 0;border-bottom:1px solid rgba(0,0,0,0.06);font-size:12px">${escHtml(i.trim())}</div>`).join(''):'';
+  const otherItems=p.otherList?p.otherList.replace(/[\[\]]/g,'').split(',').map(i=>`<div style="padding:5px 0;font-size:12px;color:rgba(255,255,255,0.8)">${escHtml(i.trim())}</div>`).join(''):'';
 
-  const discountControl=p.quote?`
-    <div class="qcard-discount">
-      <div style="font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--text2);margin-bottom:8px">Show Client A Discount</div>
-      <div style="display:flex;gap:6px;flex-wrap:wrap">
-        ${presets.map(pct=>`<button class="chip disc-chip-${uid}${pct===defaultPct?' sel':''}" data-pct="${pct}" onclick="applyDiscount(${uid},${pct})">${pct===0?'None':pct+'%'}</button>`).join('')}
-      </div>
-      <div id="disc-${uid}" style="display:${initialBox?'flex':'none'};flex-direction:column;gap:6px;margin-top:10px;background:var(--green-soft);border:1px solid var(--green-border);border-radius:14px;padding:14px 16px">${initialBox}</div>
-    </div>`:'';
-
-  // Format mat list
-  const matItems=p.matList?p.matList.replace(/[\[\]]/g,'').split(',').map(i=>`<div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid rgba(0,0,0,0.06);font-size:12px"><span>${escHtml(i.trim())}</span></div>`).join(''):'';
-  const otherItems=p.otherList?p.otherList.replace(/[\[\]]/g,'').split(',').map(i=>`<div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid rgba(255,255,255,0.1);font-size:12px;color:rgba(255,255,255,0.8)"><span>${escHtml(i.trim())}</span></div>`).join(''):'';
   return `<div class="quote-card">
   <div class="qcard-total">
     <div class="qcard-eyebrow">Estimate · 407AI</div>
     <div class="qcard-price">${escHtml(p.quote)||'—'}</div>
     <div class="qcard-job">${escHtml(p.title)}</div>
   </div>
-  ${discountControl}
+  ${p.quote?`<div class="qcard-discount">
+    <div style="font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--text2);margin-bottom:8px">Show Client A Discount</div>
+    <div style="display:flex;gap:6px;flex-wrap:wrap">
+      ${presets.map(pct=>`<button class="chip disc-chip-${uid}${pct===defaultPct?' sel':''}" data-pct="${pct}" onclick="applyDiscount(${uid},${pct})">${pct===0?'None':pct+'%'}</button>`).join('')}
+    </div>
+    <div id="disc-${uid}" style="display:${initialBox?'flex':'none'};flex-direction:column;gap:6px;margin-top:10px;background:var(--green-soft);border:1px solid var(--green-border);border-radius:14px;padding:14px 16px">${initialBox}</div>
+  </div>`:''}
   <div class="qcard-grid">
-    ${p.labor?`<div class="qcard-mini qcard-labor"><div class="qcard-mini-label">Labor</div><div class="qcard-mini-val">${escHtml(p.labor)}</div><div class="qcard-mini-sub">2 workers</div></div>`:''}
-    ${p.materials?`<div class="qcard-mini qcard-materials" onclick="toggleExpand('mat-${uid}')" style="cursor:pointer">
-      <div class="qcard-mini-label">Materials <span style="opacity:0.5;font-size:8px">▼ TAP</span></div>
-      <div class="qcard-mini-val">${escHtml(p.materials)}</div>
-      <div class="qcard-mini-sub">Tap to see breakdown</div>
-      <div id="mat-${uid}" style="display:none;margin-top:10px;border-top:1px solid rgba(0,0,0,0.1);padding-top:8px">${matItems}</div>
-    </div>`:''}
-    ${p.other?`<div class="qcard-mini qcard-other" onclick="toggleExpand('oth-${uid}')" style="cursor:pointer">
-      <div class="qcard-mini-label">Job Costs <span style="opacity:0.5;font-size:8px">▼ TAP</span></div>
-      <div class="qcard-mini-val">${escHtml(p.other)}</div>
-      <div class="qcard-mini-sub">Tap to see breakdown</div>
-      <div id="oth-${uid}" style="display:none;margin-top:10px;border-top:1px solid rgba(255,255,255,0.15);padding-top:8px">${otherItems}</div>
-    </div>`:''}
-    ${p.profit?`<div class="qcard-mini" style="background:#2a2a2a;color:#fff;cursor:pointer" onclick="toggleExpand('prof-${uid}')">
-      <div class="qcard-mini-label" style="opacity:0.5">My Numbers <span style="font-size:8px">▼</span></div>
-      <div class="qcard-mini-val" style="font-size:18px">🔒 Private</div>
-      <div class="qcard-mini-sub" style="opacity:0.4">Tap to view</div>
-      <div id="prof-${uid}" style="display:none;margin-top:10px;border-top:1px solid rgba(255,255,255,0.1);padding-top:8px">
-        <div style="font-size:11px;opacity:0.6;margin-bottom:4px">Subtotal: ${escHtml(p.subtotal)||'—'}</div>
-        <div style="font-size:22px;font-weight:900;color:var(--mango)">+${escHtml(p.profit)}</div>
-        <div style="font-size:10px;opacity:0.5;margin-top:2px">Your profit margin</div>
-      </div>
-    </div>`:''}
+    ${p.labor?`<div class="qcard-mini qcard-labor"><div class="qcard-mini-label">Labor</div><div class="qcard-mini-val">${escHtml(p.labor)}</div><div class="qcard-mini-sub">Workers</div></div>`:''}
+    ${p.materials?`<div class="qcard-mini qcard-materials" onclick="toggleExpand('mat-${uid}')" style="cursor:pointer"><div class="qcard-mini-label">Materials <span style="opacity:0.5;font-size:8px">▼ TAP</span></div><div class="qcard-mini-val">${escHtml(p.materials)}</div><div class="qcard-mini-sub">Tap to see breakdown</div><div id="mat-${uid}" style="display:none;margin-top:10px;border-top:1px solid rgba(0,0,0,0.1);padding-top:8px">${matItems}</div></div>`:''}
+    ${p.other?`<div class="qcard-mini qcard-other" onclick="toggleExpand('oth-${uid}')" style="cursor:pointer"><div class="qcard-mini-label">Job Costs <span style="opacity:0.5;font-size:8px">▼ TAP</span></div><div class="qcard-mini-val">${escHtml(p.other)}</div><div class="qcard-mini-sub">Tap to see breakdown</div><div id="oth-${uid}" style="display:none;margin-top:10px;border-top:1px solid rgba(255,255,255,0.15);padding-top:8px">${otherItems}</div></div>`:''}
+    ${p.profit?`<div class="qcard-mini" style="background:#2a2a2a;color:#fff;cursor:pointer" onclick="toggleExpand('prof-${uid}')"><div class="qcard-mini-label" style="opacity:0.5">My Numbers <span style="font-size:8px">▼</span></div><div class="qcard-mini-val" style="font-size:18px">🔒 Private</div><div class="qcard-mini-sub" style="opacity:0.4">Tap to view</div><div id="prof-${uid}" style="display:none;margin-top:10px;border-top:1px solid rgba(255,255,255,0.1);padding-top:8px"><div style="font-size:22px;font-weight:900;color:var(--mango)">+${escHtml(p.profit)}</div></div></div>`:''}
   </div>
   ${p.note?`<div class="qcard-note">${escHtml(p.note)}</div>`:''}
   <button class="qc-save" onclick="saveQuoteCard(${uid},this)">Save to Estimates</button>
@@ -825,7 +679,6 @@ function handlePhoto(e){
   };
   reader.readAsDataURL(file);
 }
-
 function clearPhoto(){
   currentPhotoB64=null;
   document.getElementById('previewImg').style.display='none';
@@ -845,20 +698,12 @@ async function analyzePhoto(){
   const resultEl=document.getElementById('photoResult');
   btn.disabled=true;btn.textContent='Analyzing…';resultEl.classList.remove('show');
   try{
-    const res=await fetchWithTimeout('/api/chat',{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:700,temperature:0.2,system:buildPhotoSystem(),messages:[{role:'user',content:[
-        {type:'image',source:{type:'base64',media_type:'image/jpeg',data:currentPhotoB64}},
-        {type:'text',text:note?`Photo of job. Extra info: ${note}`:'Analyze this photo and give me a renovation quote.'}
-      ]}]})
-    },30000);
+    const res=await fetchWithTimeout('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:700,temperature:0.1,system:buildPhotoSystem(),messages:[{role:'user',content:[{type:'image',source:{type:'base64',media_type:'image/jpeg',data:currentPhotoB64}},{type:'text',text:note?`Photo of job. Extra info: ${note}`:'Analyze this photo and give me a renovation quote.'}]}]})},30000);
     const raw=await res.text();let data;
     try{data=JSON.parse(raw);}catch{throw new Error('Could not read response.');}
     if(!res.ok)throw new Error(data?.error?.message||'API error '+res.status);
     const reply=data?.content?.[0]?.text||'Could not analyze.';
     const p=parseStructured(reply);
-    const s=getSettings(),markup=s.markup||'20';
     resultEl.innerHTML=`
       <div style="font-size:9px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--text2);margin-bottom:10px">Photo Analysis</div>
       ${p.scope?`<div style="font-size:13px;font-weight:300;color:var(--text2);line-height:1.55;margin-bottom:16px;padding-bottom:16px;border-bottom:1px solid var(--border)">${escHtml(p.scope)}</div>`:''}
@@ -868,7 +713,6 @@ async function analyzePhoto(){
         ${p.labor?`<div style="display:flex;justify-content:space-between;font-size:14px"><span style="color:var(--text2);font-weight:300">Labor</span><span style="font-weight:700">${escHtml(p.labor)}</span></div>`:''}
         ${p.materials?`<div style="display:flex;justify-content:space-between;font-size:14px"><span style="color:var(--text2);font-weight:300">Materials</span><span style="font-weight:700">${escHtml(p.materials)}</span></div>`:''}
         ${p.other?`<div style="display:flex;justify-content:space-between;font-size:14px"><span style="color:var(--text2);font-weight:300">Other</span><span style="font-weight:700">${escHtml(p.other)}</span></div>`:''}
-        ${p.profit?`<div style="display:flex;justify-content:space-between;font-size:14px"><span style="color:var(--text2);font-weight:300">Profit (${markup}%)</span><span style="font-weight:700">${escHtml(p.profit)}</span></div>`:''}
       </div>
       ${p.note?`<div style="margin-top:14px;font-size:12px;font-weight:300;color:var(--text2);line-height:1.55">${escHtml(p.note)}</div>`:''}
     `;
@@ -879,7 +723,7 @@ async function analyzePhoto(){
     resultEl.appendChild(saveBtn);
     resultEl.classList.add('show');
   }catch(e){
-    const msg=e.name==='AbortError'?'Request timed out. Check your connection and try again.':(e.message||'Check your API key.');
+    const msg=e.name==='AbortError'?'Request timed out.':(e.message||'Check connection.');
     resultEl.innerHTML='<span style="color:#c4440a;font-size:14px">Error: '+msg+'</span>';
     resultEl.classList.add('show');
   }
@@ -896,10 +740,9 @@ function addEstimate(job,price,fullText){
 function deleteEstimate(id){saveEstimates(getEstimates().filter(e=>e.id!==id));renderEstimates();}
 function renderEstimates(){
   const arr=getEstimates();const el=document.getElementById('estList');el.innerHTML='';
-  if(!arr.length){el.innerHTML=`<div class="empty-state"><div class="empty-icon">📋</div><div class="empty-title">No estimates yet</div><div class="empty-sub">Quote a job and tap Save — share directly with clients from here.</div></div>`;return;}
+  if(!arr.length){el.innerHTML=`<div class="empty-state"><div class="empty-icon">📋</div><div class="empty-title">No estimates yet</div><div class="empty-sub">Quote a job and tap Save — share with clients from here.</div></div>`;return;}
   arr.forEach(e=>{
-    const c=document.createElement('div');c.className='est-card';
-    c.style.cursor='pointer';
+    const c=document.createElement('div');c.className='est-card';c.style.cursor='pointer';
     c.innerHTML=`<div class="est-card-stripe"></div><div class="est-card-top" onclick="openDetail(${e.id})"><div class="est-info"><div class="est-job">${escHtml(e.job)}</div><div class="est-date">${escHtml(e.date)}</div></div><div class="est-price">${escHtml(e.price)}</div></div><div class="est-actions"><button class="est-action" onclick="openDetail(${e.id})">View</button><button class="est-action share" onclick="shareEst(${e.id})">Share</button><button class="est-action del" onclick="deleteEstimate(${e.id})">Delete</button></div>`;
     el.appendChild(c);
   });
@@ -909,9 +752,7 @@ function openDetail(id){
   document.getElementById('detailTitle').textContent=e.job;
   document.getElementById('detailDate').textContent=e.date;
   const p=parseStructured(e.fullText||'');
-  const s=getSettings(),markup=s.markup||'20';
-  const hasStructured=p.quote||p.labor||p.materials;
-  if(hasStructured){
+  if(p.quote||p.labor||p.materials){
     document.getElementById('detailBody').innerHTML=`
       <div style="background:var(--card-amber);border-radius:16px;padding:20px;margin-bottom:14px;position:relative;overflow:hidden">
         <div style="position:absolute;right:-20px;top:-20px;width:100px;height:100px;border-radius:50%;background:rgba(255,255,255,0.1)"></div>
@@ -923,18 +764,14 @@ function openDetail(id){
         ${p.labor?`<div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border);font-size:14px"><span style="color:var(--text2);font-weight:300">Labor</span><span style="font-weight:700">${escHtml(p.labor)}</span></div>`:''}
         ${p.materials?`<div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border);font-size:14px"><span style="color:var(--text2);font-weight:300">Materials</span><span style="font-weight:700">${escHtml(p.materials)}</span></div>`:''}
         ${p.other?`<div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border);font-size:14px"><span style="color:var(--text2);font-weight:300">Other</span><span style="font-weight:700">${escHtml(p.other)}</span></div>`:''}
-        ${p.subtotal?`<div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border);font-size:14px"><span style="color:var(--text2);font-weight:300">Subtotal</span><span style="font-weight:700">${escHtml(p.subtotal)}</span></div>`:''}
-        ${p.profit?`<div style="display:flex;justify-content:space-between;padding:10px 0;font-size:14px"><span style="color:var(--text2);font-weight:300">Profit (${markup}%)</span><span style="font-weight:700;color:var(--mango)">${escHtml(p.profit)}</span></div>`:''}
       </div>
       ${p.note?`<div style="background:var(--bg);border-radius:12px;padding:12px 14px;font-size:12px;font-weight:300;color:var(--text2);line-height:1.6">${escHtml(p.note)}</div>`:''}
     `;
-  } else {
-    // Fallback for old format estimates — show everything nicely
+  }else{
     document.getElementById('detailBody').innerHTML=`
       <div style="background:var(--card-amber);border-radius:16px;padding:20px;margin-bottom:14px">
-        <div style="font-size:9px;font-weight:700;letter-spacing:2px;color:rgba(255,255,255,0.6);margin-bottom:6px">TOTAL ESTIMATE</div>
         <div style="font-size:38px;font-weight:900;color:#fff;letter-spacing:-1px;line-height:1">${escHtml(e.price)||'—'}</div>
-        <div style="font-size:11px;font-weight:600;color:rgba(255,255,255,0.75);margin-top:8px;text-transform:uppercase;letter-spacing:1px">${escHtml(e.job)}</div>
+        <div style="font-size:11px;font-weight:600;color:rgba(255,255,255,0.75);margin-top:8px;text-transform:uppercase">${escHtml(e.job)}</div>
       </div>
       <div style="background:var(--bg);border-radius:12px;padding:14px 16px;font-size:13px;font-weight:300;color:var(--text2);line-height:1.8;white-space:pre-wrap">${escHtml(e.fullText)}</div>
     `;
@@ -945,9 +782,21 @@ function closeDetail(ev){if(!ev||ev.target===document.getElementById('detailModa
 function shareCurrentDetail(){if(currentDetail)shareEst(currentDetail.id);closeDetail();}
 function shareEst(id){
   const e=getEstimates().find(x=>x.id===id);if(!e)return;
-  const text=`ESTIMATE — 407 Renovations\nOrlando, FL\n\n${e.job}\n${e.date}\n\n${e.fullText}\n\n— Javier\n407 Renovations`;
-  if(navigator.share){navigator.share({title:'407 Renovations Estimate',text});}
-  else{navigator.clipboard.writeText(text).then(()=>alert('Copied! Paste in text or email.'));}
+  const p=parseStructured(e.fullText||'');
+  let msg=`📋 ESTIMATE — 407 Renovations\nOrlando, FL\n\n${e.job.toUpperCase()}\n${e.date}\n\n`;
+  if(p.quote){
+    msg+=`TOTAL: ${p.quote}\n\n`;
+    if(p.labor)msg+=`Labor: ${p.labor}\n`;
+    if(p.materials)msg+=`Materials: ${p.materials}\n`;
+    if(p.other)msg+=`Other costs: ${p.other}\n`;
+    if(p.note)msg+=`\nNote: ${p.note}\n`;
+  }else{
+    const clean=e.fullText.replace(/^(PROFIT|SUBTOTAL|MAT_LIST|OTHER_LIST|TITLE):.*$/gmi,'').replace(/\n{3,}/g,'\n\n').trim();
+    msg+=clean+'\n';
+  }
+  msg+=`\n— Javier\n407 Renovations\nOrlando, FL\n📞 Call or text for questions`;
+  if(navigator.share){navigator.share({title:'407 Renovations Estimate',text:msg});}
+  else{navigator.clipboard.writeText(msg).then(()=>alert('Copied! Paste in text or email.'));}
 }
 
 const chatEl=document.getElementById('chat');
@@ -956,7 +805,6 @@ const go=document.getElementById('go');
 inp.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();send();}});
 inp.addEventListener('input',()=>{inp.style.height='auto';inp.style.height=Math.min(inp.scrollHeight,100)+'px';});
 function q(t){inp.value=t;send();}
-
 function addMsg(role,text,rawText){
   if(role==='user'){
     const m=document.createElement('div');m.className='msg-user';
@@ -972,20 +820,14 @@ function addMsg(role,text,rawText){
   }
   chatEl.scrollTop=chatEl.scrollHeight;
 }
-
 function showDots(){const el=document.createElement('div');el.className='thinking';el.id='dots';el.innerHTML='<div class="dot"></div><div class="dot"></div><div class="dot"></div>';chatEl.appendChild(el);chatEl.scrollTop=chatEl.scrollHeight;}
 function hideDots(){const el=document.getElementById('dots');if(el)el.remove();}
-
 async function send(){
   const text=inp.value.trim();if(!text||go.disabled)return;
   inp.value='';inp.style.height='auto';go.disabled=true;
   addMsg('user',text);history.push({role:'user',content:text});showDots();
   try{
-    const res=await fetchWithTimeout('/api/chat',{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:600,temperature:0.2,system:buildSystem(),messages:history})
-    },30000);
+    const res=await fetchWithTimeout('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:600,temperature:0.1,system:buildSystem(),messages:history})},30000);
     const raw=await res.text();let data;
     try{data=JSON.parse(raw);}catch{throw new Error('Could not read response.');}
     if(!res.ok)throw new Error(data?.error?.message||'API error '+res.status);
@@ -993,14 +835,19 @@ async function send(){
     hideDots();addMsg('ai',reply,reply);history.push({role:'assistant',content:reply});
   }catch(e){
     hideDots();
-    const msg=e.name==='AbortError'?'Request timed out. Check your connection and try again.':(e.message||'Something went wrong. Try again.');
+    const msg=e.name==='AbortError'?'Request timed out.':(e.message||'Something went wrong.');
     addMsg('ai','Error: '+msg);
   }
   go.disabled=false;inp.focus();
 }
 
-if(getKey()){document.getElementById('keyBtn').style.display='none';}
-selectTier(TIERS[getSettings().tier]?getSettings().tier:'standard');
+// Init
+if(getKey())document.getElementById('keyBtn').style.display='none';
+const initSettings=getSettings();
+const initTier=TIERS[initSettings.tier]?initSettings.tier:'standard';
+selectedTier=initTier;
+selectTier(initTier);
+updateTierBadge();
 setTimeout(()=>{const s=document.getElementById('splash');s.classList.add('hide');setTimeout(()=>s.remove(),600);},2200);
 </script>
 </body>
