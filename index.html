@@ -8,9 +8,11 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="407AI">
 <title>407AI</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@200;300;400;500;600;700;800;900&display=swap" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@200;300;400;500;600;700;800;900&display=swap"></noscript>
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@200;300;400;500;600;700;800;900&display=swap');
-
 :root {
   --bg: #f0ede6;
   --white: #faf9f6;
@@ -113,6 +115,8 @@ header{background:var(--white);border-bottom:1px solid var(--border);padding:16p
 
 /* Note + save */
 .qcard-note{background:var(--white);border-radius:16px;padding:14px 18px;font-size:12px;font-weight:300;color:var(--text2);line-height:1.6;box-shadow:0 2px 8px rgba(0,0,0,0.05);}
+.qcard-discount{background:var(--white);border-radius:16px;padding:14px 16px;box-shadow:0 2px 8px rgba(0,0,0,0.05);}
+.chip.sel{border-color:var(--mango);color:var(--mango);background:var(--mango-glow);}
 .qc-save{display:block;background:var(--white);border:none;border-radius:16px;width:100%;padding:15px 20px;font-family:'Outfit',sans-serif;font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--green);cursor:pointer;transition:all 0.2s;text-align:center;box-shadow:0 2px 8px rgba(0,0,0,0.05);}
 .qc-save:active{background:var(--green-soft);}
 .qc-save.saved{background:var(--green-soft);}
@@ -195,13 +199,19 @@ header{background:var(--white);border-bottom:1px solid var(--border);padding:16p
 
 /* SETTINGS */
 #settingsScreen{background:var(--bg);}
-.settings-card{background:var(--white);border-radius:var(--radius);overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,0.06);}
+.settings-card{background:var(--white);border-radius:var(--radius);overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,0.06);flex-shrink:0;}
 .settings-row{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid var(--border);gap:12px;}
 .settings-row:last-child{border-bottom:none;}
 .s-lbl{font-size:14px;font-weight:600;color:var(--text);margin-bottom:2px;}
 .s-sub{font-size:11px;font-weight:300;color:var(--text2);}
 .settings-input{width:80px;background:var(--bg);border:1.5px solid var(--border);border-radius:10px;padding:10px;font-family:'Outfit',sans-serif;font-size:15px;font-weight:700;color:var(--text);text-align:center;outline:none;transition:border-color 0.2s;}
 .settings-input:focus{border-color:var(--mango);background:var(--white);}
+.tier-btn.sel{border-color:var(--mango);color:var(--mango);background:var(--mango-glow);}
+.tier-badge{font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;padding:5px 12px;border-radius:100px;cursor:pointer;border:1.5px solid var(--border);color:var(--text2);background:none;}
+.tier-badge.high{border-color:var(--card-rust);color:var(--card-rust);background:rgba(196,68,10,0.08);}
+.tier-badge.builder{border-color:var(--card-tan);color:#7a6a4a;background:rgba(200,185,154,0.2);}
+.chat-tier-bar{padding:10px 16px 0;display:flex;gap:7px;flex-shrink:0;}
+.chat-tier-lbl{font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--text2);padding:0 16px;margin-top:8px;}
 
 /* MODALS */
 .modal-bg{display:none;position:fixed;inset:0;background:rgba(26,24,20,0.5);z-index:200;align-items:flex-end;justify-content:center;backdrop-filter:blur(4px);}
@@ -236,11 +246,20 @@ header{background:var(--white);border-bottom:1px solid var(--border);padding:16p
 
 <header>
   <div class="logo"><b>407</b>AI</div>
-  <button class="key-btn" id="keyBtn" onclick="openKeyModal()" style="display:none">API Key</button>
+  <div style="margin-left:auto;display:flex;align-items:center;gap:8px">
+    <button class="tier-badge" id="tierBadge" onclick="switchTab('settings')" style="display:none;margin-left:0"></button>
+    <button class="key-btn" id="keyBtn" onclick="openKeyModal()" style="display:none;margin-left:0">API Key</button>
+  </div>
 </header>
 
 <!-- CHAT -->
 <div class="screen active" id="chatScreen">
+  <div class="chat-tier-lbl">Pricing Tier</div>
+  <div class="chat-tier-bar">
+    <button class="chip tier-opt" data-tier="builder" onclick="selectTier('builder')">Builder-Grade</button>
+    <button class="chip tier-opt" data-tier="standard" onclick="selectTier('standard')">Standard</button>
+    <button class="chip tier-opt" data-tier="high" onclick="selectTier('high')">High Quality</button>
+  </div>
   <div id="chat">
     <div class="msg-ai">
       <div class="msg-ai-lbl">407AI</div>
@@ -292,6 +311,18 @@ header{background:var(--white);border-bottom:1px solid var(--border);padding:16p
 <!-- SETTINGS -->
 <div class="screen" id="settingsScreen">
   <div class="scroll" style="gap:18px;">
+    <div class="sec-lbl">Client Tier</div>
+    <div class="settings-card">
+      <div class="settings-row">
+        <div><div class="s-lbl">Pricing Tier</div><div class="s-sub">Which price band the estimator quotes from</div></div>
+      </div>
+      <div style="padding:0 20px 18px;display:flex;gap:6px">
+        <button type="button" class="tier-btn tier-opt" data-tier="builder" onclick="selectTier('builder')" style="flex:1;padding:12px 4px;border-radius:14px;border:1.5px solid var(--border);background:var(--bg);font-family:'Outfit',sans-serif;font-size:11px;font-weight:700;cursor:pointer;color:var(--text2)">Builder-Grade</button>
+        <button type="button" class="tier-btn tier-opt" data-tier="standard" onclick="selectTier('standard')" style="flex:1;padding:12px 4px;border-radius:14px;border:1.5px solid var(--border);background:var(--bg);font-family:'Outfit',sans-serif;font-size:11px;font-weight:700;cursor:pointer;color:var(--text2)">Standard</button>
+        <button type="button" class="tier-btn tier-opt" data-tier="high" onclick="selectTier('high')" style="flex:1;padding:12px 4px;border-radius:14px;border:1.5px solid var(--border);background:var(--bg);font-family:'Outfit',sans-serif;font-size:11px;font-weight:700;cursor:pointer;color:var(--text2)">High Quality</button>
+      </div>
+      <div class="s-sub" style="padding:0 20px 18px;margin-top:-10px">Builder-Grade and High Quality multipliers are estimates — only Standard uses real 407 price-sheet numbers.</div>
+    </div>
     <div class="sec-lbl">Your Rates</div>
     <div class="settings-card">
       <div class="settings-row">
@@ -377,6 +408,23 @@ header{background:var(--white);border-bottom:1px solid var(--border);padding:16p
 <script>
 let history=[],keyVis=false,currentDetail=null,currentPhotoB64=null;
 
+function fetchWithTimeout(url,opts,ms){
+  const controller=new AbortController();
+  const timer=setTimeout(()=>controller.abort(),ms);
+  return fetch(url,{...opts,signal:controller.signal}).finally(()=>clearTimeout(timer));
+}
+
+function escHtml(str){
+  return String(str==null?'':str).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+const pendingCards={};
+function saveQuoteCard(uid,btn){
+  const d=pendingCards[uid];if(!d)return;
+  addEstimate(d.title,d.quote,d.text);
+  btn.textContent='✓ Saved to Estimates';btn.classList.add('saved');btn.onclick=null;
+  delete pendingCards[uid];
+}
+
 function getKey(){return localStorage.getItem('407ai_key')||'';}
 function saveKey(){
   const v=document.getElementById('keyInp').value.trim();
@@ -399,13 +447,41 @@ function switchTab(t){
   if(t==='settings')loadSettingsUI();
 }
 
+const TIERS={
+  builder:{short:'Builder-Grade',label:'BUILDER-GRADE',mult:0.65,
+    note:'This client is being quoted at the BUILDER-GRADE tier — entry-level finishes, stock fixtures, no upgrades. Kitchen and bathroom full renovations below already use builder-grade anchor pricing (~0.65x standard). NOTE: this multiplier is an assumption (there is no real builder-grade price sheet yet) — treat it as a rough discount off standard, not a precise figure. For any other job type with no separate builder-grade price listed, lean toward the bottom of the given range and skip upgrade add-ons unless the client asks for them.'},
+  standard:{short:'Standard',label:'STANDARD',mult:1,
+    note:'This is the standard, everyday pricing tier — real 407 Renovations price-sheet numbers.'},
+  high:{short:'High Quality',label:'HIGH QUALITY / LUXURY',mult:3.5,
+    note:'This client is being quoted at the HIGH QUALITY/LUXURY tier. Kitchen and bathroom full renovations below already use high-quality anchor pricing (~3.5x standard, reflecting premium materials, custom finishes, and white-glove service). NOTE: this multiplier is an assumption (there is no real high-quality price sheet yet) — treat it as a rough estimate, not a precise figure. For any other job type with no separate high-quality price listed, lean toward the top of the given range and favor premium/upgrade add-ons — do not invent an extra multiplier beyond what is listed here.'}
+};
+function getTier(s){return TIERS[s&&s.tier]||TIERS.standard;}
+
+let selectedTier='standard';
 function getSettings(){try{return JSON.parse(localStorage.getItem('407ai_settings')||'{}');}catch{return{};}}
+function selectTier(t){
+  if(!TIERS[t])t='standard';
+  selectedTier=t;
+  document.querySelectorAll('.tier-opt').forEach(el=>el.classList.toggle('sel',el.dataset.tier===t));
+  const s=getSettings();s.tier=t;localStorage.setItem('407ai_settings',JSON.stringify(s));
+  updateTierBadge();
+}
+function updateTierBadge(){
+  const s=getSettings();
+  const tierKey=TIERS[s.tier]?s.tier:'standard';
+  const badge=document.getElementById('tierBadge');
+  badge.textContent=(tierKey==='high'?'★ ':'')+TIERS[tierKey].short;
+  badge.classList.toggle('high',tierKey==='high');
+  badge.classList.toggle('builder',tierKey==='builder');
+  badge.style.display='block';
+}
 function loadSettingsUI(){
   const s=getSettings();
   document.getElementById('setLaborRate').value=s.laborRate||'';
   document.getElementById('setHelperRate').value=s.helperRate||'';
   document.getElementById('setMarkup').value=s.markup||'';
   document.getElementById('setDiscount').value=s.discount||'';
+  selectTier(TIERS[s.tier]?s.tier:'standard');
 }
 function saveSettings(){
   const s={
@@ -413,9 +489,11 @@ function saveSettings(){
     helperRate:document.getElementById('setHelperRate').value||'45',
     markup:document.getElementById('setMarkup').value||'20',
     city:'Orlando',
-    discount:document.getElementById('setDiscount').value||'0'
+    discount:document.getElementById('setDiscount').value||'0',
+    tier:selectedTier
   };
   localStorage.setItem('407ai_settings',JSON.stringify(s));
+  updateTierBadge();
   const el=document.getElementById('settingsSaved');el.style.display='block';
   setTimeout(()=>el.style.display='none',3000);
 }
@@ -430,56 +508,95 @@ function buildSystem(){
   const m=cityMult[city.toLowerCase().trim()]||1.0;
   const twoW=laborRate+helperRate;
 
+  const tierObj=getTier(s);
+  const tierMult=tierObj.mult;
+  const tierLabel=tierObj.label;
+  const tierNote=tierObj.note;
+
   return `You are 407AI — professional construction quoting assistant for ${city}.
 Give CONSISTENT quotes. Same job = same price range every time.
+
+CLIENT TIER: ${tierLabel}
+${tierNote}
 
 LABOR: Lead $${laborRate}/hr | Helper $${helperRate}/hr | Both $${twoW}/hr | Profit ${markup}%
 CITY MULTIPLIER: ${m}x for ${city}
 
-⚠️ ABSOLUTE MINIMUM PRICES — NEVER QUOTE BELOW THESE FOR ANY REASON:
+⚠️ PRICES BELOW ARE FROM THE REAL 407 RENOVATIONS PRICE SHEET — NEVER QUOTE BELOW THESE FOR ANY REASON UNLESS MARKED AS A NEGOTIABLE BAND:
 
-KITCHEN:
-- Full reno with all materials: MINIMUM $${Math.round(14000*m)} (never below this)
-- Full reno labor only: MINIMUM $${Math.round(6000*m)}
-- High-end/custom kitchen: add 40%
+KITCHEN — base price is for a standard ~150 sqft kitchen (sticker includes: 20 cabinets supply & install, LED lights inside cabinets, countertop fabrication & set, backsplash tile, plumbing rough & finish, electrical outlets & hood, demo & haul):
+- Full reno with all materials: $${Math.round(15000*m*tierMult)} at 150 sqft baseline
+- Full reno labor only: $${Math.round(6000*m*tierMult)} at 150 sqft baseline
+- If no sqft is given, assume the 150 sqft baseline and use the base price above.
+- If actual kitchen sqft is given and differs from 150, scale the price: adjusted = base price × (actual_sqft / 150), rounded to nearest $100. Applies in both directions — no separate floor below the scaled amount.
+- Add-ons on top of the base: extra cabinet beyond 20 → $350 each | cabinet with glass door → $180 each | soft-close upgrade → $95 each | under-cabinet LED strip → $300/section
+- High-end/custom kitchen beyond what's listed: add 40%
 
-BATHROOM:
-- Full reno with all materials: MINIMUM $${Math.round(9000*m)} (never below this)
-- Full reno labor only: MINIMUM $${Math.round(4000*m)}
-- Shower only labor: MINIMUM $3,500 (never below this)
-- Shower with materials: MINIMUM $${Math.round(5500*m)}
-- High-end/custom bathroom: add 40%
+BATHROOM — base price is for a standard ~64 sqft (8x8) bathroom (sticker includes: custom design & layout, demo & haul, shower wall tile 24"×48", floor tile, drywall/cement board, toilet supply & install, vanity supply & install, plumbing rough & finish, LED lights, grout/seal/cleanup):
+- Full reno with all materials: sticker/anchor price is $${Math.round(12000*m*tierMult)} at 64 sqft baseline — in practice this realistically negotiates down to about $${Math.round(8000*m*tierMult)} for a full job, so treat $${Math.round(8000*m*tierMult)}–$${Math.round(12000*m*tierMult)} as the real quoting band, not a hard $${Math.round(12000*m*tierMult)} floor
+- Full reno labor only (client supplies materials): $${Math.round(3500*m*tierMult)} — simple bathroom, 5 days or less (never below this)
+- Shower with materials (smaller scope than a full reno): $${Math.round(5500*m*tierMult)} (never below this)
+- If no sqft is given, assume the 64 sqft baseline and use the sticker price above.
+- If actual bathroom sqft is given and differs from 64, scale the sticker price: adjusted = sticker × (actual_sqft / 64), rounded to nearest $100 (scale the negotiable band proportionally too). Applies in both directions.
+- Add-ons on top of the base: 2nd floor surcharge → $2,000 | custom vanity supply & install → $1,500 | premium toilet supply & install → $500 | LED mirror supply & install → $300 | niche/shelf, any size → $120/linear ft | frameless glass shower door → $1,000 | freestanding tub install → $1,200 | heated floor (electric mat) → $900 | double vanity upgrade → $600 | premium 24"×48" tile upgrade (materials only) → $3–$10/sf
+- High-end/custom bathroom beyond what's listed: add 40%
 
-WALL NICHE:
-- Labor only: MINIMUM $800 (never below this — these are premium quality niches)
-- With tile/materials: MINIMUM $${Math.round(1400*m)}
+INTERIOR DESIGN SERVICES (real services you can quote if asked):
+- On-site consultation (1–2 hrs): $200
+- Space planning & layout: $350
+- Material & finish selection: $250
+- Mood board & concept: $200
+- Full design package: $750
+- Project supervision (per visit): $150
 
-EXTERIOR PAINTING:
-- 1-story home: MINIMUM $1,800 (never below this)
-- 2-story home: MINIMUM $3,000 (never below this)
-- Custom/detailed: add 40%
-
-INTERIOR PAINTING:
-- 1 room walls only: $250–$450
-- 1 room full: $400–$650
-- Whole house 3bed/2bath: $3,500–$6,000
+TILE LABOR (labor only — if you also supply the tile/material, add a reasonable material cost per sqft on top):
+- 24"×24" tile install: $3.00/sf
+- 32"×32" tile install: $3.50/sf
+- 24"×48" tile install: $4.25/sf
+- Backsplash install (full kitchen): $950
 
 FLOORING:
-- Laminate/LVP with materials: MINIMUM $5/sqft (never below this)
-- Tile labor only: MINIMUM $3/sqft (never below this)
-- Tile with materials: $9–$15/sqft
-- Hardwood with materials: $10–$16/sqft
+- LVP install: $2.50/sf
+- Hardwood install: $4.50/sf
+- Laminate install: $2.00/sf
+- Subfloor repair: $600
+- Baseboards: $3.50/lf
+- Demo old flooring: $350
 
-INSTALLATION PRICING RULE (cost-plus):
+PAINTING:
+- Interior room (avg): $350
+- Full house interior (2,000 sf): $4,500
+- Exterior — 1 floor, 1,500 sf (labor + materials): $2,200
+- Kitchen cabinets repaint (full set): $3,500
+- Trim & doors: $600
+
+QUICK SERVICES (use these exact prices for these specific jobs — do not estimate hourly instead):
+- RV spot — septic, 50 amp power, water & connections: $7,500
+- Septic tank install, labor only (2 days): $2,500 (+$25/ft if the pipe run is unusually long)
+- Septic tank install, labor + unit + installation: $3,200
+- TV wall mount install: $220 | with power relocation: $320
+- Ceiling fan install: $180 | with new wiring: add $80–150
+- Toilet install/replace: $250
+- Faucet install/replace: $150
+- Shower head/fixture replace: $180
+- Vanity install: $350
+- Mirror install: $120
+- Towel bar & accessories set: $100
+- Light fixture install: $150
+- Door install (interior): $250
+- Door handle/lock replace: $95
+
+DRYWALL:
+- Patch & texture (per hole): $120
+- Full room drywall: $900
+- Popcorn removal + texture + paint: $6.00/sf
+
+INSTALLATION PRICING RULE (cost-plus, for items/fixtures not listed above):
 When installing any item/fixture/product supplied by contractor:
 - Labor charge = 1x the cost of the material
 - Total = material cost + equal labor = 2x material cost minimum
-- Examples:
-  * Door costs $2,000 → charge $2,000 labor → total $4,000 minimum
-  * Fixture costs $500 → charge $500 labor → total $1,000 minimum
-  * Appliance costs $1,200 → charge $1,200 labor → total $2,400 minimum
-- This protects against damage/defects and ensures profit
-- If client supplies the material → charge only labor at $120/hr minimum
+- Example: door costs $2,000 → charge $2,000 labor → total $4,000 minimum
+- If client supplies the material → charge only labor per the LABOR RATES table below
 
 TRANSPORT: $${Math.round(50*m)} | DISPOSAL large jobs: $${Math.round(120*m)}
 
@@ -487,18 +604,15 @@ FENCE:
 - Installation: MINIMUM $24/linear ft (never below this)
 - Custom/decorative fence: add 30%
 
-HOURLY WORK (misc jobs not listed above):
-- MINIMUM $120/hr (never below this for any hourly job)
-- Always 2hr minimum charge = $240 minimum for any small job
-
-PLUMBING:
-- Toilet installation: MINIMUM $180 (never below this)
-- Septic tank small installation: MINIMUM $1,500 + $25/ft of pipe
-- Example: septic tank + 20ft pipe = $1,500 + $500 = $2,000 minimum
-
-ELECTRICAL:
-- Fan installation: MINIMUM $180 (never below this)
-- Fan with new wiring: add $80-150
+LABOR RATES (use this table for ANY job not covered by a specific category above — do not default to a flat hourly guess):
+- Hourly rate: $100/hr
+- Half day (4 hrs): $400
+- Full day (8 hrs): $800
+- 2-day job: $1,600
+- 3-day job: $2,400
+- Week (5 days): $4,000
+- Emergency / same-day: $150/hr
+- Minimum charge for any small job: 2 hrs at the hourly rate ($200)
 
 STAIRS:
 - Custom stairs: MINIMUM $3,000 (never below this)
@@ -506,12 +620,16 @@ STAIRS:
 - High-end custom stairs with railing + LED: MINIMUM $4,500
 
 RULES:
-1. NEVER go below minimums — not for any reason, not even if client brings all materials
-2. "I bring materials" = use labor-only minimums
-3. Scale UP for size, complexity, high-end finishes
-4. Custom work always +40%
-5. Small jobs = 1 worker | Large renos = 2 workers
-6. Be consistent — rethinking the same job should give the same price
+1. NEVER quote below the stated minimums, or outside the given negotiable band for bathroom — not for any reason, not even if client brings all materials
+2. "I bring materials" = use labor-only pricing where given, otherwise the LABOR RATES table
+3. If no size/sqft is given, assume the standard baseline size stated above for that job type — do not silently invent a different size
+4. Scale price changes from size using the proportional formulas above, not gut-feel adjustment
+5. Custom work beyond what's listed: add 40%
+6. Small jobs = 1 worker | Large renos = 2 workers
+7. Be consistent — the same job description, asked again, must produce the same price. Do not vary the number for variety's sake.
+8. If you assumed a size/scope the client didn't specify, say so briefly in NOTE
+
+Do the math silently before responding. Do not show reasoning, do not second-guess or restate corrected numbers — output the final numbers once, in the format below, and nothing else.
 
 RESPOND ONLY in this exact format:
 TITLE: [job name max 4 words]
@@ -535,13 +653,26 @@ function buildPhotoSystem(){
   const twoWorkers=laborRate+helperRate;
   const cityMult={'new york':1.8,'nyc':1.8,'los angeles':1.6,'miami':1.3,'chicago':1.4,'boston':1.5,'seattle':1.5,'denver':1.3,'austin':1.2,'dallas':1.15,'houston':1.1,'tampa':1.05,'orlando':1.0,'atlanta':1.1};
   const m=cityMult[city.toLowerCase().trim()]||1.0;
+  const tierObj=getTier(s);
+  const tierMult=tierObj.mult;
+  const tierLabel=tierObj.label;
+  const tierHint=tierObj===TIERS.high?' — lean toward the top of any range and premium-grade materials/finishes.':tierObj===TIERS.builder?' — lean toward the bottom of any range, stock materials, no upgrades.':'';
 
   return `You are 407AI — construction quoting assistant for ${city}.
-Analyze the photo and give a renovation quote using ONLY these rates:
+Analyze the photo and give a renovation quote.
 
+CLIENT TIER: ${tierLabel}${tierHint}
 YOUR RATES: Lead $${laborRate}/hr | Helper $${helperRate}/hr | 2 workers = $${twoWorkers}/hr | ${markup}% profit | City material multiplier: ${m}x
 
-CALCULATE: Estimate hours needed × labor rate + materials cost × ${m} + ${markup}% profit = quote
+REAL ANCHOR PRICES FROM THE 407 RENOVATIONS PRICE SHEET — if the photo shows one of these job types, ground your quote in these, don't estimate from scratch:
+- Full bathroom reno (~64 sqft baseline), all materials: sticker $${Math.round(12000*m*tierMult)}, realistic band $${Math.round(8000*m*tierMult)}–$${Math.round(12000*m*tierMult)}; labor only $${Math.round(3500*m*tierMult)}
+- Full kitchen reno (~150 sqft baseline), all materials: $${Math.round(15000*m*tierMult)}; labor only $${Math.round(6000*m*tierMult)}
+- Tile install labor: 24"×24" $3/sf, 32"×32" $3.50/sf, 24"×48" $4.25/sf
+- Flooring: LVP $2.50/sf, laminate $2/sf, hardwood $4.50/sf
+- Painting: interior room $350, full house (2,000sf) $4,500, exterior 1-story (1,500sf) $2,200
+- Quick items: toilet $250, ceiling fan $180, vanity $350, light fixture $150, interior door $250
+- Scale kitchen/bathroom prices proportionally if the room is clearly a different size than the baseline.
+For anything not listed above: estimate hours needed × labor rate + materials cost × ${m} + ${markup}% profit.
 Always show your math in the breakdown.
 
 RESPOND ONLY in this exact format:
@@ -557,8 +688,12 @@ NOTE: [one sentence what could change this price]`;
 }
 
 function parseStructured(text){
-  const get=(key)=>{const m=text.match(new RegExp('^'+key+':\\s*(.+)','im'));return m?m[1].trim():'';};
+  const get=(key)=>{const ms=[...text.matchAll(new RegExp('^'+key+':\\s*(.+)','gim'))];return ms.length?ms[ms.length-1][1].trim():'';};
   return{title:get('TITLE'),labor:get('LABOR'),materials:get('MATERIALS'),matList:get('MAT_LIST'),other:get('OTHER'),otherList:get('OTHER_LIST'),subtotal:get('SUBTOTAL'),profit:get('PROFIT'),quote:get('QUOTE'),scope:get('SCOPE'),note:get('NOTE')};
+}
+
+function isValidQuote(q){
+  return /\$\s*[\d,]+(\.\d+)?\s*[–-]\s*\$?\s*[\d,]+(\.\d+)?/.test(q||'');
 }
 
 function toggleExpand(id){
@@ -568,58 +703,85 @@ function toggleExpand(id){
   el.style.display=open?'none':'block';
 }
 
+function computeDiscount(quoteStr,pct){
+  const nums=(quoteStr.match(/[\d,]+(?:\.\d+)?/g)||[]).map(n=>parseFloat(n.replace(/,/g,'')));
+  if(!nums.length)return null;
+  const disc=n=>Math.max(0,Math.round(n*(1-pct/100)));
+  if(nums.length>=2){
+    const avg=(nums[0]+nums[1])/2;
+    return{discounted:`$${disc(nums[0]).toLocaleString()} – $${disc(nums[1]).toLocaleString()}`,amount:Math.round(avg*(pct/100))};
+  }
+  return{discounted:`$${disc(nums[0]).toLocaleString()}`,amount:Math.round(nums[0]*(pct/100))};
+}
+
+function discountBoxHTML(quoteStr,pct){
+  const r=computeDiscount(quoteStr,pct);
+  if(!r)return'';
+  return`
+    <div style="display:flex;justify-content:space-between;font-size:13px">
+      <span style="color:var(--text2);font-weight:300">Original price</span>
+      <span style="font-weight:500;text-decoration:line-through;color:var(--text2)">${escHtml(quoteStr)}</span>
+    </div>
+    <div style="display:flex;justify-content:space-between;font-size:13px">
+      <span style="color:var(--green);font-weight:600">Discount (${pct}%)</span>
+      <span style="font-weight:600;color:var(--green)">- $${r.amount.toLocaleString()}</span>
+    </div>
+    <div style="display:flex;justify-content:space-between;font-size:18px;border-top:1px solid var(--green-border);padding-top:8px;margin-top:2px">
+      <span style="color:var(--text);font-weight:700">Client Price</span>
+      <span style="font-weight:900;color:var(--green)">${escHtml(r.discounted)}</span>
+    </div>`;
+}
+
+function applyDiscount(uid,pct){
+  const d=pendingCards[uid];if(!d)return;
+  const box=document.getElementById('disc-'+uid);if(!box)return;
+  document.querySelectorAll('.disc-chip-'+uid).forEach(c=>c.classList.toggle('sel',parseInt(c.dataset.pct,10)===pct));
+  if(pct<=0){box.style.display='none';box.innerHTML='';return;}
+  const html=discountBoxHTML(d.quote,pct);
+  if(!html){box.style.display='none';return;}
+  box.style.display='flex';box.innerHTML=html;
+}
+
 function renderQuoteCard(p,rawText){
   const s=getSettings();
-  const discount=parseFloat(s.discount)||0;
-  const esc=rawText.replace(/\\/g,'\\\\').replace(/`/g,'\\`').replace(/\$/g,'\\$');
-  const tj=(p.title||'Job Estimate').replace(/'/g,"\\'");
-  const pq=(p.quote||'').replace(/'/g,"\\'");
   const uid=Date.now();
+  pendingCards[uid]={title:p.title||'Job Estimate',quote:p.quote||'',text:rawText};
 
-  // Calculate discount if set
-  let discountHTML='';
-  if(discount>0 && p.quote){
-    const quoteNum=parseFloat(p.quote.replace(/[^0-9.]/g,''));
-    if(quoteNum>0){
-      const discAmt=Math.round(quoteNum*(discount/100));
-      const finalPrice=Math.round(quoteNum-discAmt);
-      discountHTML=`
-        <div style="background:var(--green-soft);border:1px solid var(--green-border);border-radius:14px;padding:14px 16px;display:flex;flex-direction:column;gap:6px">
-          <div style="display:flex;justify-content:space-between;font-size:13px">
-            <span style="color:var(--text2);font-weight:300">Original price</span>
-            <span style="font-weight:500;text-decoration:line-through;color:var(--text2)">${p.quote}</span>
-          </div>
-          <div style="display:flex;justify-content:space-between;font-size:13px">
-            <span style="color:var(--green);font-weight:600">Discount (${discount}%)</span>
-            <span style="font-weight:600;color:var(--green)">- $${discAmt.toLocaleString()}</span>
-          </div>
-          <div style="display:flex;justify-content:space-between;font-size:18px;border-top:1px solid var(--green-border);padding-top:8px;margin-top:2px">
-            <span style="color:var(--text);font-weight:700">Your Price</span>
-            <span style="font-weight:900;color:var(--green)">$${finalPrice.toLocaleString()}</span>
-          </div>
-        </div>`;
-    }
-  }
+  const presets=[0,5,10,15,20];
+  const settingsPct=parseFloat(s.discount)||0;
+  const defaultPct=presets.reduce((a,b)=>Math.abs(b-settingsPct)<Math.abs(a-settingsPct)?b:a,0);
+  const initialBox=p.quote&&defaultPct>0?discountBoxHTML(p.quote,defaultPct):'';
+
+  const discountControl=p.quote?`
+    <div class="qcard-discount">
+      <div style="font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--text2);margin-bottom:8px">Show Client A Discount</div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap">
+        ${presets.map(pct=>`<button class="chip disc-chip-${uid}${pct===defaultPct?' sel':''}" data-pct="${pct}" onclick="applyDiscount(${uid},${pct})">${pct===0?'None':pct+'%'}</button>`).join('')}
+      </div>
+      <div id="disc-${uid}" style="display:${initialBox?'flex':'none'};flex-direction:column;gap:6px;margin-top:10px;background:var(--green-soft);border:1px solid var(--green-border);border-radius:14px;padding:14px 16px">${initialBox}</div>
+    </div>`:'';
+
   // Format mat list
-  const matItems=p.matList?p.matList.replace(/[\[\]]/g,'').split(',').map(i=>`<div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid rgba(0,0,0,0.06);font-size:12px"><span>${i.trim()}</span></div>`).join(''):'';
-  const otherItems=p.otherList?p.otherList.replace(/[\[\]]/g,'').split(',').map(i=>`<div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid rgba(255,255,255,0.1);font-size:12px;color:rgba(255,255,255,0.8)"><span>${i.trim()}</span></div>`).join(''):'';
+  const matItems=p.matList?p.matList.replace(/[\[\]]/g,'').split(',').map(i=>`<div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid rgba(0,0,0,0.06);font-size:12px"><span>${escHtml(i.trim())}</span></div>`).join(''):'';
+  const otherItems=p.otherList?p.otherList.replace(/[\[\]]/g,'').split(',').map(i=>`<div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid rgba(255,255,255,0.1);font-size:12px;color:rgba(255,255,255,0.8)"><span>${escHtml(i.trim())}</span></div>`).join(''):'';
   return `<div class="quote-card">
   <div class="qcard-total">
     <div class="qcard-eyebrow">Estimate · 407AI</div>
-    <div class="qcard-price">${p.quote||'—'}</div>
-    <div class="qcard-job">${p.title||''}</div>
+    <div class="qcard-price">${escHtml(p.quote)||'—'}</div>
+    <div class="qcard-job">${escHtml(p.title)}</div>
   </div>
+  ${discountControl}
   <div class="qcard-grid">
-    ${p.labor?`<div class="qcard-mini qcard-labor"><div class="qcard-mini-label">Labor</div><div class="qcard-mini-val">${p.labor}</div><div class="qcard-mini-sub">2 workers</div></div>`:''}
+    ${p.labor?`<div class="qcard-mini qcard-labor"><div class="qcard-mini-label">Labor</div><div class="qcard-mini-val">${escHtml(p.labor)}</div><div class="qcard-mini-sub">2 workers</div></div>`:''}
     ${p.materials?`<div class="qcard-mini qcard-materials" onclick="toggleExpand('mat-${uid}')" style="cursor:pointer">
       <div class="qcard-mini-label">Materials <span style="opacity:0.5;font-size:8px">▼ TAP</span></div>
-      <div class="qcard-mini-val">${p.materials}</div>
+      <div class="qcard-mini-val">${escHtml(p.materials)}</div>
       <div class="qcard-mini-sub">Tap to see breakdown</div>
       <div id="mat-${uid}" style="display:none;margin-top:10px;border-top:1px solid rgba(0,0,0,0.1);padding-top:8px">${matItems}</div>
     </div>`:''}
     ${p.other?`<div class="qcard-mini qcard-other" onclick="toggleExpand('oth-${uid}')" style="cursor:pointer">
       <div class="qcard-mini-label">Job Costs <span style="opacity:0.5;font-size:8px">▼ TAP</span></div>
-      <div class="qcard-mini-val">${p.other}</div>
+      <div class="qcard-mini-val">${escHtml(p.other)}</div>
       <div class="qcard-mini-sub">Tap to see breakdown</div>
       <div id="oth-${uid}" style="display:none;margin-top:10px;border-top:1px solid rgba(255,255,255,0.15);padding-top:8px">${otherItems}</div>
     </div>`:''}
@@ -628,15 +790,14 @@ function renderQuoteCard(p,rawText){
       <div class="qcard-mini-val" style="font-size:18px">🔒 Private</div>
       <div class="qcard-mini-sub" style="opacity:0.4">Tap to view</div>
       <div id="prof-${uid}" style="display:none;margin-top:10px;border-top:1px solid rgba(255,255,255,0.1);padding-top:8px">
-        <div style="font-size:11px;opacity:0.6;margin-bottom:4px">Subtotal: ${p.subtotal||'—'}</div>
-        <div style="font-size:22px;font-weight:900;color:var(--mango)">+${p.profit}</div>
+        <div style="font-size:11px;opacity:0.6;margin-bottom:4px">Subtotal: ${escHtml(p.subtotal)||'—'}</div>
+        <div style="font-size:22px;font-weight:900;color:var(--mango)">+${escHtml(p.profit)}</div>
         <div style="font-size:10px;opacity:0.5;margin-top:2px">Your profit margin</div>
       </div>
     </div>`:''}
   </div>
-  ${p.note?`<div class="qcard-note">${p.note}</div>`:''}
-  ${discountHTML}
-  <button class="qc-save" onclick="(function(b){addEstimate('${tj}','${pq}',\`${esc}\`);b.textContent='✓ Saved to Estimates';b.classList.add('saved');b.onclick=null;})(this)">Save to Estimates</button>
+  ${p.note?`<div class="qcard-note">${escHtml(p.note)}</div>`:''}
+  <button class="qc-save" onclick="saveQuoteCard(${uid},this)">Save to Estimates</button>
 </div>`;
 }
 
@@ -684,14 +845,14 @@ async function analyzePhoto(){
   const resultEl=document.getElementById('photoResult');
   btn.disabled=true;btn.textContent='Analyzing…';resultEl.classList.remove('show');
   try{
-    const res=await fetch('/api/chat',{
+    const res=await fetchWithTimeout('/api/chat',{
       method:'POST',
       headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:700,system:buildPhotoSystem(),messages:[{role:'user',content:[
+      body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:700,temperature:0.2,system:buildPhotoSystem(),messages:[{role:'user',content:[
         {type:'image',source:{type:'base64',media_type:'image/jpeg',data:currentPhotoB64}},
         {type:'text',text:note?`Photo of job. Extra info: ${note}`:'Analyze this photo and give me a renovation quote.'}
       ]}]})
-    });
+    },30000);
     const raw=await res.text();let data;
     try{data=JSON.parse(raw);}catch{throw new Error('Could not read response.');}
     if(!res.ok)throw new Error(data?.error?.message||'API error '+res.status);
@@ -700,16 +861,16 @@ async function analyzePhoto(){
     const s=getSettings(),markup=s.markup||'20';
     resultEl.innerHTML=`
       <div style="font-size:9px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--text2);margin-bottom:10px">Photo Analysis</div>
-      ${p.scope?`<div style="font-size:13px;font-weight:300;color:var(--text2);line-height:1.55;margin-bottom:16px;padding-bottom:16px;border-bottom:1px solid var(--border)">${p.scope}</div>`:''}
-      <div style="font-size:42px;font-weight:900;color:var(--mango);letter-spacing:-2px;line-height:1">${p.quote||'—'}</div>
-      <div style="font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--text2);margin:8px 0 18px">${p.title||'Photo Quote'}</div>
+      ${p.scope?`<div style="font-size:13px;font-weight:300;color:var(--text2);line-height:1.55;margin-bottom:16px;padding-bottom:16px;border-bottom:1px solid var(--border)">${escHtml(p.scope)}</div>`:''}
+      <div style="font-size:42px;font-weight:900;color:var(--mango);letter-spacing:-2px;line-height:1">${escHtml(p.quote)||'—'}</div>
+      <div style="font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--text2);margin:8px 0 18px">${escHtml(p.title)||'Photo Quote'}</div>
       <div style="display:flex;flex-direction:column;gap:10px;padding-top:4px;border-top:1px solid var(--border)">
-        ${p.labor?`<div style="display:flex;justify-content:space-between;font-size:14px"><span style="color:var(--text2);font-weight:300">Labor</span><span style="font-weight:700">${p.labor}</span></div>`:''}
-        ${p.materials?`<div style="display:flex;justify-content:space-between;font-size:14px"><span style="color:var(--text2);font-weight:300">Materials</span><span style="font-weight:700">${p.materials}</span></div>`:''}
-        ${p.other?`<div style="display:flex;justify-content:space-between;font-size:14px"><span style="color:var(--text2);font-weight:300">Other</span><span style="font-weight:700">${p.other}</span></div>`:''}
-        ${p.profit?`<div style="display:flex;justify-content:space-between;font-size:14px"><span style="color:var(--text2);font-weight:300">Profit (${markup}%)</span><span style="font-weight:700">${p.profit}</span></div>`:''}
+        ${p.labor?`<div style="display:flex;justify-content:space-between;font-size:14px"><span style="color:var(--text2);font-weight:300">Labor</span><span style="font-weight:700">${escHtml(p.labor)}</span></div>`:''}
+        ${p.materials?`<div style="display:flex;justify-content:space-between;font-size:14px"><span style="color:var(--text2);font-weight:300">Materials</span><span style="font-weight:700">${escHtml(p.materials)}</span></div>`:''}
+        ${p.other?`<div style="display:flex;justify-content:space-between;font-size:14px"><span style="color:var(--text2);font-weight:300">Other</span><span style="font-weight:700">${escHtml(p.other)}</span></div>`:''}
+        ${p.profit?`<div style="display:flex;justify-content:space-between;font-size:14px"><span style="color:var(--text2);font-weight:300">Profit (${markup}%)</span><span style="font-weight:700">${escHtml(p.profit)}</span></div>`:''}
       </div>
-      ${p.note?`<div style="margin-top:14px;font-size:12px;font-weight:300;color:var(--text2);line-height:1.55">${p.note}</div>`:''}
+      ${p.note?`<div style="margin-top:14px;font-size:12px;font-weight:300;color:var(--text2);line-height:1.55">${escHtml(p.note)}</div>`:''}
     `;
     const saveBtn=document.createElement('button');
     saveBtn.className='qc-save';saveBtn.style.marginTop='16px';saveBtn.style.width='100%';saveBtn.style.borderRadius='12px';
@@ -718,7 +879,8 @@ async function analyzePhoto(){
     resultEl.appendChild(saveBtn);
     resultEl.classList.add('show');
   }catch(e){
-    resultEl.innerHTML='<span style="color:#c4440a;font-size:14px">Error: '+(e.message||'Check your API key.')+'</span>';
+    const msg=e.name==='AbortError'?'Request timed out. Check your connection and try again.':(e.message||'Check your API key.');
+    resultEl.innerHTML='<span style="color:#c4440a;font-size:14px">Error: '+msg+'</span>';
     resultEl.classList.add('show');
   }
   btn.disabled=false;btn.textContent='Analyze & Price This Job';
@@ -738,7 +900,7 @@ function renderEstimates(){
   arr.forEach(e=>{
     const c=document.createElement('div');c.className='est-card';
     c.style.cursor='pointer';
-    c.innerHTML=`<div class="est-card-stripe"></div><div class="est-card-top" onclick="openDetail(${e.id})"><div class="est-info"><div class="est-job">${e.job}</div><div class="est-date">${e.date}</div></div><div class="est-price">${e.price}</div></div><div class="est-actions"><button class="est-action" onclick="openDetail(${e.id})">View</button><button class="est-action share" onclick="shareEst(${e.id})">Share</button><button class="est-action del" onclick="deleteEstimate(${e.id})">Delete</button></div>`;
+    c.innerHTML=`<div class="est-card-stripe"></div><div class="est-card-top" onclick="openDetail(${e.id})"><div class="est-info"><div class="est-job">${escHtml(e.job)}</div><div class="est-date">${escHtml(e.date)}</div></div><div class="est-price">${escHtml(e.price)}</div></div><div class="est-actions"><button class="est-action" onclick="openDetail(${e.id})">View</button><button class="est-action share" onclick="shareEst(${e.id})">Share</button><button class="est-action del" onclick="deleteEstimate(${e.id})">Delete</button></div>`;
     el.appendChild(c);
   });
 }
@@ -754,27 +916,27 @@ function openDetail(id){
       <div style="background:var(--card-amber);border-radius:16px;padding:20px;margin-bottom:14px;position:relative;overflow:hidden">
         <div style="position:absolute;right:-20px;top:-20px;width:100px;height:100px;border-radius:50%;background:rgba(255,255,255,0.1)"></div>
         <div style="font-size:9px;font-weight:700;letter-spacing:2px;color:rgba(255,255,255,0.6);margin-bottom:6px">TOTAL ESTIMATE</div>
-        <div style="font-size:38px;font-weight:900;color:#fff;letter-spacing:-1px;line-height:1">${p.quote||e.price||'—'}</div>
-        <div style="font-size:11px;font-weight:600;color:rgba(255,255,255,0.75);margin-top:8px;text-transform:uppercase;letter-spacing:1px">${p.title||e.job}</div>
+        <div style="font-size:38px;font-weight:900;color:#fff;letter-spacing:-1px;line-height:1">${escHtml(p.quote||e.price)||'—'}</div>
+        <div style="font-size:11px;font-weight:600;color:rgba(255,255,255,0.75);margin-top:8px;text-transform:uppercase;letter-spacing:1px">${escHtml(p.title||e.job)}</div>
       </div>
       <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:14px">
-        ${p.labor?`<div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border);font-size:14px"><span style="color:var(--text2);font-weight:300">Labor</span><span style="font-weight:700">${p.labor}</span></div>`:''}
-        ${p.materials?`<div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border);font-size:14px"><span style="color:var(--text2);font-weight:300">Materials</span><span style="font-weight:700">${p.materials}</span></div>`:''}
-        ${p.other?`<div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border);font-size:14px"><span style="color:var(--text2);font-weight:300">Other</span><span style="font-weight:700">${p.other}</span></div>`:''}
-        ${p.subtotal?`<div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border);font-size:14px"><span style="color:var(--text2);font-weight:300">Subtotal</span><span style="font-weight:700">${p.subtotal}</span></div>`:''}
-        ${p.profit?`<div style="display:flex;justify-content:space-between;padding:10px 0;font-size:14px"><span style="color:var(--text2);font-weight:300">Profit (${markup}%)</span><span style="font-weight:700;color:var(--mango)">${p.profit}</span></div>`:''}
+        ${p.labor?`<div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border);font-size:14px"><span style="color:var(--text2);font-weight:300">Labor</span><span style="font-weight:700">${escHtml(p.labor)}</span></div>`:''}
+        ${p.materials?`<div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border);font-size:14px"><span style="color:var(--text2);font-weight:300">Materials</span><span style="font-weight:700">${escHtml(p.materials)}</span></div>`:''}
+        ${p.other?`<div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border);font-size:14px"><span style="color:var(--text2);font-weight:300">Other</span><span style="font-weight:700">${escHtml(p.other)}</span></div>`:''}
+        ${p.subtotal?`<div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border);font-size:14px"><span style="color:var(--text2);font-weight:300">Subtotal</span><span style="font-weight:700">${escHtml(p.subtotal)}</span></div>`:''}
+        ${p.profit?`<div style="display:flex;justify-content:space-between;padding:10px 0;font-size:14px"><span style="color:var(--text2);font-weight:300">Profit (${markup}%)</span><span style="font-weight:700;color:var(--mango)">${escHtml(p.profit)}</span></div>`:''}
       </div>
-      ${p.note?`<div style="background:var(--bg);border-radius:12px;padding:12px 14px;font-size:12px;font-weight:300;color:var(--text2);line-height:1.6">${p.note}</div>`:''}
+      ${p.note?`<div style="background:var(--bg);border-radius:12px;padding:12px 14px;font-size:12px;font-weight:300;color:var(--text2);line-height:1.6">${escHtml(p.note)}</div>`:''}
     `;
   } else {
     // Fallback for old format estimates — show everything nicely
     document.getElementById('detailBody').innerHTML=`
       <div style="background:var(--card-amber);border-radius:16px;padding:20px;margin-bottom:14px">
         <div style="font-size:9px;font-weight:700;letter-spacing:2px;color:rgba(255,255,255,0.6);margin-bottom:6px">TOTAL ESTIMATE</div>
-        <div style="font-size:38px;font-weight:900;color:#fff;letter-spacing:-1px;line-height:1">${e.price||'—'}</div>
-        <div style="font-size:11px;font-weight:600;color:rgba(255,255,255,0.75);margin-top:8px;text-transform:uppercase;letter-spacing:1px">${e.job}</div>
+        <div style="font-size:38px;font-weight:900;color:#fff;letter-spacing:-1px;line-height:1">${escHtml(e.price)||'—'}</div>
+        <div style="font-size:11px;font-weight:600;color:rgba(255,255,255,0.75);margin-top:8px;text-transform:uppercase;letter-spacing:1px">${escHtml(e.job)}</div>
       </div>
-      <div style="background:var(--bg);border-radius:12px;padding:14px 16px;font-size:13px;font-weight:300;color:var(--text2);line-height:1.8;white-space:pre-wrap">${e.fullText||''}</div>
+      <div style="background:var(--bg);border-radius:12px;padding:14px 16px;font-size:13px;font-weight:300;color:var(--text2);line-height:1.8;white-space:pre-wrap">${escHtml(e.fullText)}</div>
     `;
   }
   document.getElementById('detailModal').classList.add('open');
@@ -783,14 +945,7 @@ function closeDetail(ev){if(!ev||ev.target===document.getElementById('detailModa
 function shareCurrentDetail(){if(currentDetail)shareEst(currentDetail.id);closeDetail();}
 function shareEst(id){
   const e=getEstimates().find(x=>x.id===id);if(!e)return;
-  // Client-facing share: total price only — never labor/materials/other/subtotal/profit.
-  const p=parseStructured(e.fullText||'');
-  const total=p.quote||e.price||'';
-  let text=`ESTIMATE — 407 Renovations\nOrlando, FL\n\n${p.title||e.job}\n${e.date}\n`;
-  if(p.scope) text+=`\n${p.scope}\n`;
-  text+=`\nTotal: ${total}\n`;
-  if(p.note) text+=`\n${p.note}\n`;
-  text+=`\n— Javier\n407 Renovations`;
+  const text=`ESTIMATE — 407 Renovations\nOrlando, FL\n\n${e.job}\n${e.date}\n\n${e.fullText}\n\n— Javier\n407 Renovations`;
   if(navigator.share){navigator.share({title:'407 Renovations Estimate',text});}
   else{navigator.clipboard.writeText(text).then(()=>alert('Copied! Paste in text or email.'));}
 }
@@ -805,14 +960,14 @@ function q(t){inp.value=t;send();}
 function addMsg(role,text,rawText){
   if(role==='user'){
     const m=document.createElement('div');m.className='msg-user';
-    m.innerHTML=`<div class="msg-user-lbl">You</div><div class="msg-user-bbl">${text}</div>`;
+    m.innerHTML=`<div class="msg-user-lbl">You</div><div class="msg-user-bbl">${escHtml(text)}</div>`;
     chatEl.appendChild(m);
   }else{
     const m=document.createElement('div');m.className='msg-ai';
     m.innerHTML=`<div class="msg-ai-lbl">407AI</div>`;
     const p=parseStructured(rawText||text);
-    if(p.quote){m.innerHTML+=renderQuoteCard(p,rawText||text);}
-    else{m.innerHTML+=`<div class="msg-ai-plain">${text.replace(/\n/g,'<br>')}</div>`;}
+    if(p.quote&&isValidQuote(p.quote)){m.innerHTML+=renderQuoteCard(p,rawText||text);}
+    else{m.innerHTML+=`<div class="msg-ai-plain">${escHtml(text).replace(/\n/g,'<br>')}</div>`;}
     chatEl.appendChild(m);
   }
   chatEl.scrollTop=chatEl.scrollHeight;
@@ -826,23 +981,26 @@ async function send(){
   inp.value='';inp.style.height='auto';go.disabled=true;
   addMsg('user',text);history.push({role:'user',content:text});showDots();
   try{
-    const res=await fetch('/api/chat',{
+    const res=await fetchWithTimeout('/api/chat',{
       method:'POST',
       headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:600,system:buildSystem(),messages:history})
-    });
+      body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:600,temperature:0.2,system:buildSystem(),messages:history})
+    },30000);
     const raw=await res.text();let data;
     try{data=JSON.parse(raw);}catch{throw new Error('Could not read response.');}
     if(!res.ok)throw new Error(data?.error?.message||'API error '+res.status);
     const reply=data?.content?.[0]?.text||'No response — try again.';
     hideDots();addMsg('ai',reply,reply);history.push({role:'assistant',content:reply});
   }catch(e){
-    hideDots();addMsg('ai','Error: '+(e.message||'Something went wrong. Try again.'));
+    hideDots();
+    const msg=e.name==='AbortError'?'Request timed out. Check your connection and try again.':(e.message||'Something went wrong. Try again.');
+    addMsg('ai','Error: '+msg);
   }
   go.disabled=false;inp.focus();
 }
 
 if(getKey()){document.getElementById('keyBtn').style.display='none';}
+selectTier(TIERS[getSettings().tier]?getSettings().tier:'standard');
 setTimeout(()=>{const s=document.getElementById('splash');s.classList.add('hide');setTimeout(()=>s.remove(),600);},2200);
 </script>
 </body>
