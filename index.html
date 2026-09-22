@@ -369,7 +369,7 @@ const TIERS={
     label:'BUILDER-GRADE',
     desc:'Basic materials, stock cabinets, standard fixtures. Entry level for budget clients.',
     kitchenFull:9500, kitchenLabor:3500,
-    bathFull:6000, bathLabor:2500, bathBand:4500,
+    bathFull:7500, bathLabor:2500, bathBand:6000,
     paintMult:0.85, floorMult:0.85, otherMult:0.85
   },
   standard:{
@@ -377,16 +377,16 @@ const TIERS={
     label:'STANDARD',
     desc:'Real 407 Renovations price sheet. Quality materials, professional finish.',
     kitchenFull:15000, kitchenLabor:6000,
-    bathFull:12000, bathLabor:3500, bathBand:8000,
+    bathFull:12000, bathLabor:3500, bathBand:9000,
     paintMult:1, floorMult:1, otherMult:1
   },
   high:{
     short:'High Quality',
     label:'HIGH QUALITY / LUXURY',
     desc:'Premium materials, custom finishes, white-glove service. Luxury clients.',
-    kitchenFull:45000, kitchenLabor:18000,
-    bathFull:52000, bathLabor:14000, bathBand:40000,
-    paintMult:1.4, floorMult:1.5, otherMult:1.3
+    kitchenFull:55000, kitchenLabor:20000,
+    bathFull:60000, bathLabor:18000, bathBand:40000,
+    paintMult:1.6, floorMult:1.8, otherMult:1.5
   }
 };
 
@@ -540,12 +540,15 @@ RESPOND ONLY in this format:
 TITLE: [tier + job name, max 5 words]
 LABOR: $X
 MATERIALS: $X
-MAT_LIST: [item ~$X, item ~$X]
+MAT_LIST: [item ~$X; item ~$X; item ~$X]
 OTHER: $X
-OTHER_LIST: [Transport ~$X, Disposal ~$X]
+OTHER_LIST: [Transport ~$X; Disposal ~$X]
 SUBTOTAL: $X
 PROFIT: $X
 QUOTE: $X – $X
+TIMELINE: [X–X days / ~X hrs estimated]
+DEPOSIT: $X (X% upfront to start)
+PAYMENTS: [Deposit $X to start; Progress $X at midpoint; Final $X on completion]
 NOTE: [one sentence what could change price]`;
 }
 
@@ -580,9 +583,20 @@ QUOTE: $X – $X
 NOTE: [one sentence]`;
 }
 
+const TIER_DESCRIPTIONS={
+  builder:`🔧 Builder-Grade Estimate\nThis estimate uses entry-level materials and standard fixtures. Ideal for rentals, flips, or budget renovations where function matters more than premium finish. Solid work at an accessible price.`,
+  standard:`⭐ Standard Estimate\nThis estimate uses quality materials and professional-grade fixtures. Our most popular option — built to last, look great, and stand the test of time. The right balance of value and quality.`,
+  high:`✨ High Quality / Luxury Estimate\nThis estimate uses premium materials, custom finishes, and top-of-the-line fixtures. Every detail is carefully selected and installed with precision. This is not just a renovation — it is an investment in your home and lifestyle. My relationship with you goes beyond this project — I am here to help you with everything.`
+};
 function parseStructured(text){
   const get=(key)=>{const ms=[...text.matchAll(new RegExp('^'+key+':\\s*(.+)','gim'))];return ms.length?ms[ms.length-1][1].trim():'';};
-  return{title:get('TITLE'),labor:get('LABOR'),materials:get('MATERIALS'),matList:get('MAT_LIST'),other:get('OTHER'),otherList:get('OTHER_LIST'),subtotal:get('SUBTOTAL'),profit:get('PROFIT'),quote:get('QUOTE'),scope:get('SCOPE'),note:get('NOTE')};
+  return{
+    title:get('TITLE'),labor:get('LABOR'),materials:get('MATERIALS'),
+    matList:get('MAT_LIST'),other:get('OTHER'),otherList:get('OTHER_LIST'),
+    subtotal:get('SUBTOTAL'),profit:get('PROFIT'),quote:get('QUOTE'),
+    scope:get('SCOPE'),note:get('NOTE'),
+    timeline:get('TIMELINE'),deposit:get('DEPOSIT'),payments:get('PAYMENTS')
+  };
 }
 function isValidQuote(q){return /\$\s*[\d,]+(\.\d+)?\s*[–-]\s*\$?\s*[\d,]+(\.\d+)?/.test(q||'');}
 function toggleExpand(id){const el=document.getElementById(id);if(!el)return;el.style.display=el.style.display==='block'?'none':'block';}
@@ -622,14 +636,15 @@ function saveQuoteCard(uid,btn){
 
 function renderQuoteCard(p,rawText){
   const s=getSettings();
+  const tierKey=TIERS[s.tier]?s.tier:'standard';
   const uid=Date.now();
   pendingCards[uid]={title:p.title||'Job Estimate',quote:p.quote||'',text:rawText};
   const presets=[0,5,10,15,20];
   const settingsPct=parseFloat(s.discount)||0;
   const defaultPct=presets.reduce((a,b)=>Math.abs(b-settingsPct)<Math.abs(a-settingsPct)?b:a,0);
   const initialBox=p.quote&&defaultPct>0?discountBoxHTML(p.quote,defaultPct):'';
-  const matItems=p.matList?p.matList.replace(/[\[\]]/g,'').split(',').map(i=>`<div style="padding:5px 0;border-bottom:1px solid rgba(0,0,0,0.06);font-size:12px">${escHtml(i.trim())}</div>`).join(''):'';
-  const otherItems=p.otherList?p.otherList.replace(/[\[\]]/g,'').split(',').map(i=>`<div style="padding:5px 0;font-size:12px;color:rgba(255,255,255,0.8)">${escHtml(i.trim())}</div>`).join(''):'';
+  const matItems=p.matList?p.matList.replace(/^\[|\]$/g,'').split(';').map(i=>i.trim()).filter(Boolean).map(i=>`<div style="padding:5px 0;border-bottom:1px solid rgba(0,0,0,0.06);font-size:12px">${escHtml(i)}</div>`).join(''):'';
+  const otherItems=p.otherList?p.otherList.replace(/^\[|\]$/g,'').split(';').map(i=>i.trim()).filter(Boolean).map(i=>`<div style="padding:5px 0;font-size:12px;color:rgba(255,255,255,0.8)">${escHtml(i)}</div>`).join(''):'';
 
   return `<div class="quote-card">
   <div class="qcard-total">
@@ -644,13 +659,68 @@ function renderQuoteCard(p,rawText){
     </div>
     <div id="disc-${uid}" style="display:${initialBox?'flex':'none'};flex-direction:column;gap:6px;margin-top:10px;background:var(--green-soft);border:1px solid var(--green-border);border-radius:14px;padding:14px 16px">${initialBox}</div>
   </div>`:''}
+
+  ${p.materials?`<div style="background:var(--white);border-radius:18px;padding:18px;box-shadow:0 2px 8px rgba(0,0,0,0.05)">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:${matItems?'12px':'0'}">
+      <div>
+        <div style="font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--text2);margin-bottom:4px">Materials Included</div>
+        <div style="font-size:30px;font-weight:900;color:var(--text);letter-spacing:-1px">${escHtml(p.materials)}</div>
+      </div>
+      <div style="background:var(--mango-soft);border:1px solid var(--mango-border);border-radius:8px;padding:4px 10px;font-size:9px;font-weight:700;color:var(--mango-dark);letter-spacing:1px">INCLUDED</div>
+    </div>
+    ${matItems?`<div style="border-top:1px solid var(--border);padding-top:10px;display:flex;flex-direction:column;gap:2px">${matItems}</div>`:''}
+  </div>`:''}
+
   <div class="qcard-grid">
-    ${p.labor?`<div class="qcard-mini qcard-labor"><div class="qcard-mini-label">Labor</div><div class="qcard-mini-val">${escHtml(p.labor)}</div><div class="qcard-mini-sub">Workers</div></div>`:''}
-    ${p.materials?`<div class="qcard-mini qcard-materials" onclick="toggleExpand('mat-${uid}')" style="cursor:pointer"><div class="qcard-mini-label">Materials <span style="opacity:0.5;font-size:8px">▼ TAP</span></div><div class="qcard-mini-val">${escHtml(p.materials)}</div><div class="qcard-mini-sub">Tap to see breakdown</div><div id="mat-${uid}" style="display:none;margin-top:10px;border-top:1px solid rgba(0,0,0,0.1);padding-top:8px">${matItems}</div></div>`:''}
-    ${p.other?`<div class="qcard-mini qcard-other" onclick="toggleExpand('oth-${uid}')" style="cursor:pointer"><div class="qcard-mini-label">Job Costs <span style="opacity:0.5;font-size:8px">▼ TAP</span></div><div class="qcard-mini-val">${escHtml(p.other)}</div><div class="qcard-mini-sub">Tap to see breakdown</div><div id="oth-${uid}" style="display:none;margin-top:10px;border-top:1px solid rgba(255,255,255,0.15);padding-top:8px">${otherItems}</div></div>`:''}
-    ${p.profit?`<div class="qcard-mini" style="background:#2a2a2a;color:#fff;cursor:pointer" onclick="toggleExpand('prof-${uid}')"><div class="qcard-mini-label" style="opacity:0.5">My Numbers <span style="font-size:8px">▼</span></div><div class="qcard-mini-val" style="font-size:18px">🔒 Private</div><div class="qcard-mini-sub" style="opacity:0.4">Tap to view</div><div id="prof-${uid}" style="display:none;margin-top:10px;border-top:1px solid rgba(255,255,255,0.1);padding-top:8px"><div style="font-size:22px;font-weight:900;color:var(--mango)">+${escHtml(p.profit)}</div></div></div>`:''}
+    ${p.other?`<div class="qcard-mini qcard-other" onclick="toggleExpand('oth-${uid}')" style="cursor:pointer">
+      <div class="qcard-mini-label">Job Costs <span style="opacity:0.5;font-size:8px">▼</span></div>
+      <div class="qcard-mini-val">${escHtml(p.other)}</div>
+      <div class="qcard-mini-sub">Transport · Disposal</div>
+      <div id="oth-${uid}" style="display:none;margin-top:10px;border-top:1px solid rgba(255,255,255,0.15);padding-top:8px">${otherItems}</div>
+    </div>`:''}
+    <div class="qcard-mini" style="background:var(--card-sage);color:#fff">
+      <div class="qcard-mini-label">Your Team</div>
+      <div class="qcard-mini-val" style="font-size:20px;line-height:1.2">2 Pro</div>
+      <div class="qcard-mini-sub">Licensed & insured</div>
+    </div>
   </div>
+
+  <div style="background:#1e1c18;border-radius:18px;padding:16px 18px;cursor:pointer" onclick="toggleExpand('prof-${uid}')">
+    <div style="display:flex;justify-content:space-between;align-items:center">
+      <div style="font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,0.35)">🔒 My Numbers</div>
+      <div style="font-size:11px;color:rgba(255,255,255,0.25)">Tap to view ▼</div>
+    </div>
+    <div id="prof-${uid}" style="display:none;margin-top:12px;border-top:1px solid rgba(255,255,255,0.08);padding-top:12px;display:flex;flex-direction:column;gap:8px">
+      ${p.labor?`<div style="display:flex;justify-content:space-between;font-size:13px"><span style="color:rgba(255,255,255,0.4)">Labor</span><span style="font-weight:700;color:var(--mango)">${escHtml(p.labor)}</span></div>`:''}
+      ${p.subtotal?`<div style="display:flex;justify-content:space-between;font-size:13px"><span style="color:rgba(255,255,255,0.4)">Subtotal</span><span style="font-weight:700;color:#fff">${escHtml(p.subtotal)}</span></div>`:''}
+      ${p.profit?`<div style="display:flex;justify-content:space-between;font-size:13px"><span style="color:rgba(255,255,255,0.4)">Profit</span><span style="font-weight:700;color:var(--mango)">+${escHtml(p.profit)}</span></div>`:''}
+    </div>
+  </div>
+
   ${p.note?`<div class="qcard-note">${escHtml(p.note)}</div>`:''}
+
+  ${(p.timeline||p.deposit||p.payments)?`<div style="background:var(--white);border-radius:18px;padding:18px;box-shadow:0 2px 8px rgba(0,0,0,0.05);display:flex;flex-direction:column;gap:14px">
+    ${p.timeline?`<div>
+      <div style="font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--text2);margin-bottom:6px">⏱ Estimated Timeline</div>
+      <div style="font-size:18px;font-weight:800;color:var(--text)">${escHtml(p.timeline)}</div>
+      <div style="font-size:11px;font-weight:300;color:var(--text2);margin-top:4px;line-height:1.5">Construction timelines may vary due to material availability, weather, or job complexity. Final timeline confirmed at project start.</div>
+    </div>`:''}
+    ${p.payments?`<div style="border-top:1px solid var(--border);padding-top:14px">
+      <div style="font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--text2);margin-bottom:10px">💳 Payment Schedule</div>
+      ${p.deposit?`<div style="background:var(--mango-soft);border:1px solid var(--mango-border);border-radius:12px;padding:12px 14px;margin-bottom:8px">
+        <div style="font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--mango-dark);margin-bottom:2px">Deposit Required to Start</div>
+        <div style="font-size:22px;font-weight:900;color:var(--mango-dark)">${escHtml(p.deposit)}</div>
+      </div>`:''}
+      <div style="display:flex;flex-direction:column;gap:6px">
+        ${p.payments.replace(/^\[|\]$/g,'').split(';').map((pay,i)=>pay.trim()?`<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border)">
+          <div style="width:22px;height:22px;border-radius:50%;background:${i===0?'var(--mango)':i===1?'var(--card-sage)':'var(--card-dark)'};color:#fff;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0">${i+1}</div>
+          <div style="font-size:13px;font-weight:300;color:var(--text)">${escHtml(pay.trim())}</div>
+        </div>`:'').join('')}
+      </div>
+    </div>`:''}
+  </div>`:''}
+
+  <div style="background:var(--bg);border-radius:16px;padding:16px 18px;font-size:12px;font-weight:300;color:var(--text2);line-height:1.8;white-space:pre-line">${escHtml(TIER_DESCRIPTIONS[tierKey]||TIER_DESCRIPTIONS.standard)}</div>
   <button class="qc-save" onclick="saveQuoteCard(${uid},this)">Save to Estimates</button>
 </div>`;
 }
@@ -752,25 +822,52 @@ function openDetail(id){
   document.getElementById('detailTitle').textContent=e.job;
   document.getElementById('detailDate').textContent=e.date;
   const p=parseStructured(e.fullText||'');
-  if(p.quote||p.labor||p.materials){
+  const matItems=p.matList?p.matList.replace(/^\[|\]$/g,'').split(';').map(i=>i.trim()).filter(Boolean).map(i=>`<div style="padding:6px 0;border-bottom:1px solid var(--border);font-size:12px;color:var(--text2)">${escHtml(i)}</div>`).join(''):'';
+  const otherItems=p.otherList?p.otherList.replace(/^\[|\]$/g,'').split(';').map(i=>i.trim()).filter(Boolean).map(i=>`<div style="padding:4px 0;font-size:12px;color:var(--text2)">${escHtml(i)}</div>`).join(''):'';;
+  const payItems=p.payments?p.payments.replace(/^\[|\]$/g,'').split(';').map((pay,i)=>pay.trim()?`<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border)"><div style="width:22px;height:22px;border-radius:50%;background:${i===0?'var(--mango)':i===1?'var(--card-sage)':'#1e1c18'};color:#fff;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0">${i+1}</div><div style="font-size:13px;font-weight:300">${escHtml(pay.trim())}</div></div>`:'').join(''):'';
+  if(p.quote||p.materials){
     document.getElementById('detailBody').innerHTML=`
       <div style="background:var(--card-amber);border-radius:16px;padding:20px;margin-bottom:14px;position:relative;overflow:hidden">
         <div style="position:absolute;right:-20px;top:-20px;width:100px;height:100px;border-radius:50%;background:rgba(255,255,255,0.1)"></div>
         <div style="font-size:9px;font-weight:700;letter-spacing:2px;color:rgba(255,255,255,0.6);margin-bottom:6px">TOTAL ESTIMATE</div>
-        <div style="font-size:38px;font-weight:900;color:#fff;letter-spacing:-1px;line-height:1">${escHtml(p.quote||e.price)||'—'}</div>
+        <div style="font-size:38px;font-weight:900;color:#fff;letter-spacing:-1px;line-height:1">${escHtml(p.quote||e.price)||''}</div>
         <div style="font-size:11px;font-weight:600;color:rgba(255,255,255,0.75);margin-top:8px;text-transform:uppercase;letter-spacing:1px">${escHtml(p.title||e.job)}</div>
       </div>
-      <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:14px">
-        ${p.labor?`<div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border);font-size:14px"><span style="color:var(--text2);font-weight:300">Labor</span><span style="font-weight:700">${escHtml(p.labor)}</span></div>`:''}
-        ${p.materials?`<div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border);font-size:14px"><span style="color:var(--text2);font-weight:300">Materials</span><span style="font-weight:700">${escHtml(p.materials)}</span></div>`:''}
-        ${p.other?`<div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border);font-size:14px"><span style="color:var(--text2);font-weight:300">Other</span><span style="font-weight:700">${escHtml(p.other)}</span></div>`:''}
+      <div style="display:flex;flex-direction:column;gap:0;margin-bottom:14px;background:var(--white);border-radius:14px;overflow:hidden">
+        ${p.materials?`<div style="padding:14px 16px;border-bottom:1px solid var(--border)">
+          <div style="display:flex;justify-content:space-between;font-size:14px;margin-bottom:${matItems?'10px':'0'}"><span style="color:var(--text2);font-weight:300">Materials</span><span style="font-weight:700">${escHtml(p.materials)}</span></div>
+          ${matItems?`<div style="padding-left:4px">${matItems}</div>`:''}
+        </div>`:''}
+        ${p.other?`<div style="padding:14px 16px;border-bottom:1px solid var(--border)">
+          <div style="display:flex;justify-content:space-between;font-size:14px;margin-bottom:${otherItems?'8px':'0'}"><span style="color:var(--text2);font-weight:300">Other Costs</span><span style="font-weight:700">${escHtml(p.other)}</span></div>
+          ${otherItems?`<div style="padding-left:4px">${otherItems}</div>`:''}
+        </div>`:''}
+        <div style="padding:12px 16px;background:#1e1c18;display:flex;justify-content:space-between;align-items:center;cursor:pointer" onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display==='flex'?'none':'flex'">
+          <span style="color:rgba(255,255,255,0.5);font-size:12px;font-weight:700;letter-spacing:1px">🔒 MY NUMBERS</span>
+          <span style="color:rgba(255,255,255,0.3);font-size:11px">Tap to view</span>
+        </div>
+        <div style="display:none;background:#2a2a2a;padding:14px 16px;flex-direction:column;gap:8px">
+          ${p.labor?`<div style="display:flex;justify-content:space-between;font-size:13px"><span style="color:rgba(255,255,255,0.5)">Labor</span><span style="font-weight:700;color:var(--mango)">${escHtml(p.labor)}</span></div>`:''}
+          ${p.subtotal?`<div style="display:flex;justify-content:space-between;font-size:13px"><span style="color:rgba(255,255,255,0.5)">Subtotal</span><span style="font-weight:700;color:#fff">${escHtml(p.subtotal)}</span></div>`:''}
+          ${p.profit?`<div style="display:flex;justify-content:space-between;font-size:13px"><span style="color:rgba(255,255,255,0.5)">Profit</span><span style="font-weight:700;color:var(--mango)">+${escHtml(p.profit)}</span></div>`:''}
+        </div>
       </div>
+      ${p.timeline?`<div style="background:var(--white);border-radius:14px;padding:14px 16px;margin-bottom:14px">
+        <div style="font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--text2);margin-bottom:6px">⏱ Estimated Timeline</div>
+        <div style="font-size:18px;font-weight:800;color:var(--text);margin-bottom:6px">${escHtml(p.timeline)}</div>
+        <div style="font-size:11px;font-weight:300;color:var(--text2);line-height:1.5">Timelines may vary due to materials, weather, or complexity.</div>
+      </div>`:''}
+      ${payItems?`<div style="background:var(--white);border-radius:14px;padding:14px 16px;margin-bottom:14px">
+        <div style="font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--text2);margin-bottom:10px">💳 Payment Schedule</div>
+        ${p.deposit?`<div style="background:var(--mango-soft);border:1px solid var(--mango-border);border-radius:10px;padding:10px 14px;margin-bottom:10px"><div style="font-size:10px;font-weight:700;color:var(--mango-dark)">DEPOSIT TO START</div><div style="font-size:20px;font-weight:900;color:var(--mango-dark)">${escHtml(p.deposit)}</div></div>`:''}
+        ${payItems}
+      </div>`:''}
       ${p.note?`<div style="background:var(--bg);border-radius:12px;padding:12px 14px;font-size:12px;font-weight:300;color:var(--text2);line-height:1.6">${escHtml(p.note)}</div>`:''}
     `;
   }else{
     document.getElementById('detailBody').innerHTML=`
       <div style="background:var(--card-amber);border-radius:16px;padding:20px;margin-bottom:14px">
-        <div style="font-size:38px;font-weight:900;color:#fff;letter-spacing:-1px;line-height:1">${escHtml(e.price)||'—'}</div>
+        <div style="font-size:38px;font-weight:900;color:#fff;letter-spacing:-1px;line-height:1">${escHtml(e.price)||''}</div>
         <div style="font-size:11px;font-weight:600;color:rgba(255,255,255,0.75);margin-top:8px;text-transform:uppercase">${escHtml(e.job)}</div>
       </div>
       <div style="background:var(--bg);border-radius:12px;padding:14px 16px;font-size:13px;font-weight:300;color:var(--text2);line-height:1.8;white-space:pre-wrap">${escHtml(e.fullText)}</div>
@@ -778,23 +875,30 @@ function openDetail(id){
   }
   document.getElementById('detailModal').classList.add('open');
 }
+
 function closeDetail(ev){if(!ev||ev.target===document.getElementById('detailModal'))document.getElementById('detailModal').classList.remove('open');}
 function shareCurrentDetail(){if(currentDetail)shareEst(currentDetail.id);closeDetail();}
 function shareEst(id){
   const e=getEstimates().find(x=>x.id===id);if(!e)return;
   const p=parseStructured(e.fullText||'');
+  const s=getSettings();
+  const tierKey=TIERS[s.tier]?s.tier:'standard';
+  const tierDesc=TIER_DESCRIPTIONS[tierKey]||TIER_DESCRIPTIONS.standard;
   let msg=`📋 ESTIMATE — 407 Renovations\nOrlando, FL\n\n${e.job.toUpperCase()}\n${e.date}\n\n`;
   if(p.quote){
     msg+=`TOTAL: ${p.quote}\n\n`;
-    if(p.labor)msg+=`Labor: ${p.labor}\n`;
     if(p.materials)msg+=`Materials: ${p.materials}\n`;
+    if(p.matList)msg+=p.matList.replace(/[\[\]]/g,'').split(';').map(i=>`  • ${i.trim()}`).filter(Boolean).join('\n')+'\n';
     if(p.other)msg+=`Other costs: ${p.other}\n`;
+    if(p.timeline)msg+=`\n⏱ Timeline: ${p.timeline}\n(May vary due to materials or job complexity)\n`;
+    if(p.deposit)msg+=`\n💳 Deposit required: ${p.deposit}\n`;
+    if(p.payments)msg+=`Payment schedule:\n`+p.payments.replace(/[\[\]]/g,'').split(';').filter(Boolean).map((p,i)=>`  ${i+1}. ${p.trim()}`).join('\n')+'\n';
     if(p.note)msg+=`\nNote: ${p.note}\n`;
   }else{
     const clean=e.fullText.replace(/^(PROFIT|SUBTOTAL|MAT_LIST|OTHER_LIST|TITLE):.*$/gmi,'').replace(/\n{3,}/g,'\n\n').trim();
     msg+=clean+'\n';
   }
-  msg+=`\n— Javier\n407 Renovations\nOrlando, FL\n📞 Call or text for questions`;
+  msg+=`\n${tierDesc}\n\n— Javier\n407 Renovations\nOrlando, FL\n📞 Call or text for questions`;
   if(navigator.share){navigator.share({title:'407 Renovations Estimate',text:msg});}
   else{navigator.clipboard.writeText(msg).then(()=>alert('Copied! Paste in text or email.'));}
 }
