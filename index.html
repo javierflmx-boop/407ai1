@@ -629,7 +629,10 @@ function applyDiscount(uid,pct){
 }
 function saveQuoteCard(uid,btn){
   const d=pendingCards[uid];if(!d)return;
-  addEstimate(d.title,d.quote,d.text);
+  const timelineInput=document.getElementById('timeline-'+uid);
+  const userTimeline=timelineInput?timelineInput.value.trim():'';
+  const fullText=userTimeline?d.text.replace(/^TIMELINE:.*$/mi,'TIMELINE: '+userTimeline):d.text;
+  addEstimate(d.title,d.quote,fullText);
   btn.textContent='✓ Saved to Estimates';btn.classList.add('saved');btn.onclick=null;
   delete pendingCards[uid];
 }
@@ -699,12 +702,14 @@ function renderQuoteCard(p,rawText){
 
   ${p.note?`<div class="qcard-note">${escHtml(p.note)}</div>`:''}
 
-  ${(p.timeline||p.deposit||p.payments)?`<div style="background:var(--white);border-radius:18px;padding:18px;box-shadow:0 2px 8px rgba(0,0,0,0.05);display:flex;flex-direction:column;gap:14px">
-    ${p.timeline?`<div>
-      <div style="font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--text2);margin-bottom:6px">⏱ Estimated Timeline</div>
-      <div style="font-size:18px;font-weight:800;color:var(--text)">${escHtml(p.timeline)}</div>
-      <div style="font-size:11px;font-weight:300;color:var(--text2);margin-top:4px;line-height:1.5">Construction timelines may vary due to material availability, weather, or job complexity. Final timeline confirmed at project start.</div>
-    </div>`:''}
+  <div style="background:var(--white);border-radius:18px;padding:18px;box-shadow:0 2px 8px rgba(0,0,0,0.05);display:flex;flex-direction:column;gap:14px">
+    <div>
+      <div style="font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--text2);margin-bottom:8px">⏱ Your Timeline Estimate</div>
+      <input id="timeline-${uid}" type="text" placeholder="e.g. 90 days / 3 months" value="${escHtml(p.timeline||'')}"
+        style="width:100%;background:var(--bg);border:1.5px solid var(--border);border-radius:12px;padding:12px 14px;font-family:'Outfit',sans-serif;font-size:16px;font-weight:700;color:var(--text);outline:none;"
+        onfocus="this.style.borderColor='var(--mango)'" onblur="this.style.borderColor='var(--border)'" />
+      <div style="font-size:11px;font-weight:300;color:var(--text2);margin-top:6px;line-height:1.5">You know your schedule best. This will appear on the estimate for your client.</div>
+    </div>
     ${p.payments?`<div style="border-top:1px solid var(--border);padding-top:14px">
       <div style="font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--text2);margin-bottom:10px">💳 Payment Schedule</div>
       ${p.deposit?`<div style="background:var(--mango-soft);border:1px solid var(--mango-border);border-radius:12px;padding:12px 14px;margin-bottom:8px">
@@ -718,7 +723,7 @@ function renderQuoteCard(p,rawText){
         </div>`:'').join('')}
       </div>
     </div>`:''}
-  </div>`:''}
+  </div>
 
   <div style="background:var(--bg);border-radius:16px;padding:16px 18px;font-size:12px;font-weight:300;color:var(--text2);line-height:1.8;white-space:pre-line">${escHtml(TIER_DESCRIPTIONS[tierKey]||TIER_DESCRIPTIONS.standard)}</div>
   <button class="qc-save" onclick="saveQuoteCard(${uid},this)">Save to Estimates</button>
